@@ -1,7 +1,7 @@
 :root {
     --font-pvz: 'Luckiest Guy', cursive;
-    --font-sub: 'Fredoka', cursive, sans-serif;
-    --font-main: 'Outfit', sans-serif;
+    --font-sub: 'Fredoka', 'Segoe UI Symbol', 'Cambria Math', 'Noto Sans Math', 'Outfit', sans-serif;
+    --font-main: 'Outfit', 'Segoe UI Symbol', 'Cambria Math', 'Noto Sans Math', sans-serif;
 
     /* PvZ Vibrant Palette */
     --color-sky-top: #29b6f6;

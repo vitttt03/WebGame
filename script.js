@@ -274,17 +274,17 @@ function renderApp() {
             </div>
         </div>
 
-        <!-- MODAL XÁC THỰC QUẢN TRỊ VIÊN (BẢO MẬT TÊN: uyen123) -->
+        <!-- MODAL XÁC THỰC QUẢN TRỊ VIÊN (BẢO MẬT MẬT KHẨU: uyen123) -->
         <div id="auth-modal" class="pause-modal-overlay">
             <div class="pause-modal-box" style="max-width: 440px;">
                 <h2 class="pause-modal-title" style="color: #ffd54f;">🔒 BẢO MẬT QUẢN TRỊ</h2>
                 <p class="pause-modal-desc" style="margin-bottom: 0.8rem; font-size: 1.1rem;">
-                    Vui lòng nhập tên xác thực để vào Quản lý câu hỏi:
+                    Vui lòng nhập mật khẩu để vào Quản lý câu hỏi:
                 </p>
                 
                 <form onsubmit="submitAdminAuth(event)" style="width: 100%;">
-                    <input type="text" id="admin-auth-input" class="auth-input-field" placeholder="Nhập tên..." autocomplete="off" required>
-                    <div id="auth-error-msg" class="auth-error-text" style="display: none;">❌ Tên xác thực không đúng! Vui lòng thử lại.</div>
+                    <input type="password" id="admin-auth-input" class="auth-input-field" placeholder="Nhập mật khẩu (••••••)..." autocomplete="off" required>
+                    <div id="auth-error-msg" class="auth-error-text" style="display: none;">❌ Mật khẩu không đúng! Vui lòng thử lại.</div>
                     
                     <div class="pause-modal-actions" style="margin-top: 1.2rem;">
                         <button type="submit" class="pvz-btn">
@@ -439,45 +439,8 @@ function renderApp() {
                         <div class="math-toolbar-title">
                             <span>📐 BẢNG KÝ HIỆU TOÁN HỌC (Bấm để chèn trực tiếp vào ô đang nhập):</span>
                         </div>
-                        <div class="math-symbol-tags">
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('+')" title="Cộng">+</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('−')" title="Trừ">−</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('×')" title="Nhân">×</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('÷')" title="Chia">÷</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('±')" title="Cộng trừ">±</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('=')" title="Bằng">=</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('≠')" title="Khác">≠</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('≈')" title="Xấp xỉ">≈</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('<')" title="Nhỏ hơn">&lt;</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('>')" title="Lớn hơn">&gt;</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('≤')" title="Nhỏ hơn hoặc bằng">≤</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('≥')" title="Lớn hơn hoặc bằng">≥</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('²')" title="Bình phương">x²</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('³')" title="Lập phương">x³</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('ⁿ')" title="Mũ n">xⁿ</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('√')" title="Căn bậc hai">√</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∛')" title="Căn bậc ba">∛</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('π')" title="Số Pi">π</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('°')" title="Độ">°</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('½')" title="Một phần hai">½</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('⅓')" title="Một phần ba">⅓</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('¼')" title="Một phần tư">¼</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('¾')" title="Ba phần tư">¾</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('△')" title="Tam giác">△</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∠')" title="Góc">∠</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('⊥')" title="Vuông góc">⊥</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∥')" title="Song song">∥</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('α')" title="Alpha">α</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('β')" title="Beta">β</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('Δ')" title="Delta">Δ</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∞')" title="Vô cực">∞</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∈')" title="Thuộc">∈</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∉')" title="Không thuộc">∉</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('⊂')" title="Tập con">⊂</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∪')" title="Hợp">∪</button>
-                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∩')" title="Giao">∩</button>
-                            <button type="button" class="math-sym-btn katex-btn" onclick="insertMathSymbol('$\\frac{a}{b}$')" title="Chèn phân số LaTeX">$\frac{a}{b}$</button>
-                            <button type="button" class="math-sym-btn katex-btn" onclick="insertMathSymbol('$\\sqrt{x}$')" title="Chèn căn thức LaTeX">$\sqrt{x}$</button>
+                        <div class="math-symbol-tags" id="math-symbol-tags-container">
+                            <!-- Dynamic Math Symbols & Custom Add Button rendered here -->
                         </div>
                     </div>
 
@@ -1144,6 +1107,7 @@ function exitToMainMenu() {
 function openAdmin() {
     PvZAudio.playClick();
     renderAdminQuestions();
+    renderMathToolbar();
     showScreen('screen-admin');
 }
 
@@ -1156,12 +1120,112 @@ function closeAdmin() {
 
 // --- MATH SYMBOLS & KATEX INTEGRATION ---
 let lastFocusedInput = null;
+let customMathSymbols = JSON.parse(localStorage.getItem('pvzCustomMathSymbols') || '[]');
 
 document.addEventListener('focusin', (e) => {
     if (e.target && e.target.matches('#admin-question, #admin-opt-0, #admin-opt-1, #admin-opt-2, #admin-opt-3, #admin-mission')) {
         lastFocusedInput = e.target;
     }
 });
+
+function renderMathToolbar() {
+    const container = document.getElementById('math-symbol-tags-container');
+    if (!container) return;
+
+    // 1. Trọn bộ Số Mũ từ 0 đến 9, n, x, +, -
+    const superscripts = [
+        { display: 'x⁰', val: '⁰', title: 'Mũ 0' },
+        { display: 'x¹', val: '¹', title: 'Mũ 1' },
+        { display: 'x²', val: '²', title: 'Mũ 2' },
+        { display: 'x³', val: '³', title: 'Mũ 3' },
+        { display: 'x⁴', val: '⁴', title: 'Mũ 4' },
+        { display: 'x⁵', val: '⁵', title: 'Mũ 5' },
+        { display: 'x⁶', val: '⁶', title: 'Mũ 6' },
+        { display: 'x⁷', val: '⁷', title: 'Mũ 7' },
+        { display: 'x⁸', val: '⁸', title: 'Mũ 8' },
+        { display: 'x⁹', val: '⁹', title: 'Mũ 9' },
+        { display: 'xⁿ', val: 'ⁿ', title: 'Mũ n' },
+        { display: 'xˣ', val: 'ˣ', title: 'Mũ x' },
+        { display: 'x⁺', val: '⁺', title: 'Mũ cộng' },
+        { display: 'x⁻', val: '⁻', title: 'Mũ trừ' }
+    ];
+
+    // 2. Phép tính & So sánh (kèm dấu chia hết 3 chấm dọc ⋮, gạch đứng |, không chia hết ∤)
+    const basicOps = [
+        '+', '−', '×', '÷', '±', '=', '≠', '≈', '<', '>', '≤', '≥', 
+        '⋮', '|', '∤', '…'
+    ];
+
+    // 3. Căn bậc, phân số, hình học & Hy Lạp
+    const advancedSymbols = [
+        '√', '∛', 'π', '°', '½', '⅓', '¼', '¾', 
+        '△', '∠', '⊥', '∥', 'α', 'β', 'Δ', '∞', 
+        '∈', '∉', '⊂', '∪', '∩'
+    ];
+
+    let html = `
+        <!-- HÀNG 1: TRỌN BỘ SỐ MŨ 0 ĐẾN 9 -->
+        <div class="math-group-row">
+            <span class="math-row-label">🔢 SỐ MŨ (0 - 9):</span>
+            <div class="math-row-buttons">
+                ${superscripts.map(s => `<button type="button" class="math-sym-btn math-super-btn" onclick="insertMathSymbol('${s.val}')" title="${s.title}">${s.display}</button>`).join('')}
+            </div>
+        </div>
+
+        <!-- HÀNG 2: PHÉP TÍNH, CĂN BẬC, HÌNH HỌC & HY LẠP -->
+        <div class="math-group-row">
+            <span class="math-row-label">📐 KÝ HIỆU & PHÉP TÍNH:</span>
+            <div class="math-row-buttons">
+                ${basicOps.map(op => `<button type="button" class="math-sym-btn" onclick="insertMathSymbol('${op}')">${op}</button>`).join('')}
+                ${advancedSymbols.map(sym => `<button type="button" class="math-sym-btn" onclick="insertMathSymbol('${sym}')">${sym}</button>`).join('')}
+            </div>
+        </div>
+
+        <!-- HÀNG 4: KÝ TỰ TÙY CHỈNH & LATEX -->
+        <div class="math-group-row">
+            <span class="math-row-label">🧪 TÙY CHỈNH & LATEX:</span>
+            <div class="math-row-buttons">
+                ${customMathSymbols.map((sym, cIdx) => {
+                    const safe = sym.replace(/'/g, "\\'");
+                    return `<button type="button" class="math-sym-btn custom-sym" onclick="insertMathSymbol('${safe}')" oncontextmenu="deleteCustomMathSymbol(event, ${cIdx})" title="Ký tự tự thêm (Chuột phải để xóa)">${sym}</button>`;
+                }).join('')}
+                <button type="button" class="math-sym-btn katex-btn" onclick="insertMathSymbol('$x^5$')" title="Chèn x mũ 5">$x^5$</button>
+                <button type="button" class="math-sym-btn katex-btn" onclick="insertMathSymbol('$\\frac{a}{b}$')" title="Chèn phân số LaTeX">$\\frac{a}{b}$</button>
+                <button type="button" class="math-sym-btn katex-btn" onclick="insertMathSymbol('$\\sqrt{x}$')" title="Chèn căn thức LaTeX">$\\sqrt{x}$</button>
+                <button type="button" class="math-sym-btn math-add-custom-btn" onclick="promptAddCustomMathSymbol()" title="Bấm để tự thêm ký tự mới">+ Thêm Ký Tự</button>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+function promptAddCustomMathSymbol() {
+    PvZAudio.playClick();
+    const sym = prompt("Nhập ký tự hoặc công thức toán học bạn muốn thêm vào bảng:\n(Ví dụ: ∫, ∑, log, ∜, \\vec{u}, ...)");
+    if (sym && sym.trim()) {
+        const trimmed = sym.trim();
+        if (!customMathSymbols.includes(trimmed)) {
+            customMathSymbols.push(trimmed);
+            localStorage.setItem('pvzCustomMathSymbols', JSON.stringify(customMathSymbols));
+            PvZAudio.playSun();
+            renderMathToolbar();
+        } else {
+            alert("Ký tự này đã có trên bảng rồi!");
+        }
+    }
+}
+
+function deleteCustomMathSymbol(e, index) {
+    if (e) e.preventDefault();
+    PvZAudio.playClick();
+    const sym = customMathSymbols[index];
+    if (confirm(`Bạn có muốn xóa ký tự "${sym}" khỏi bảng không?`)) {
+        customMathSymbols.splice(index, 1);
+        localStorage.setItem('pvzCustomMathSymbols', JSON.stringify(customMathSymbols));
+        renderMathToolbar();
+    }
+}
 
 function insertMathSymbol(symbol) {
     PvZAudio.playClick();

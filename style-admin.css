@@ -252,19 +252,70 @@
 
 .math-toolbar-title {
     font-family: var(--font-pvz);
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: #ffe082;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.8rem;
     letter-spacing: 0.5px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .math-symbol-tags {
     display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.math-group-row {
+    display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 6px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 0.5rem 0.8rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 213, 79, 0.2);
+}
+
+.math-row-label {
+    font-family: var(--font-pvz);
+    font-size: 0.85rem;
+    color: #ffd54f;
+    letter-spacing: 0.5px;
+    margin-right: 4px;
+    white-space: nowrap;
+}
+
+.math-row-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.math-sym-btn.math-super-btn {
+    background: linear-gradient(180deg, #fff59d 0%, #fff176 100%);
+    border-color: #fbc02d;
+    color: #2e1d00;
+    font-weight: 900;
+}
+
+.math-sym-btn.math-super-btn:hover {
+    background: #ffffff;
+    border-color: #ffd54f;
+}
+
+.math-sym-btn.math-sub-btn {
+    background: linear-gradient(180deg, #e1f5fe 0%, #b3e5fc 100%);
+    border-color: #4fc3f7;
+    color: #01579b;
+    font-weight: 900;
+}
+
+.math-sym-btn.math-sub-btn:hover {
+    background: #ffffff;
+    border-color: #81d4fa;
 }
 
 .math-sym-btn {
@@ -299,14 +350,37 @@
     box-shadow: 0 0 0 #b26a00;
 }
 
-.math-sym-btn.katex-btn {
-    background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
-    border-color: #4caf50;
-    color: #1b5e20;
-    box-shadow: 0 2px 0 #2e7d32, 0 3px 6px rgba(0, 0, 0, 0.3);
-}
-
 .math-sym-btn.katex-btn:hover {
     border-color: #81c784;
     box-shadow: 0 4px 0 #2e7d32, 0 6px 12px rgba(76, 175, 80, 0.4);
+}
+
+.math-sym-btn.math-add-custom-btn {
+    background: linear-gradient(180deg, #66bb6a 0%, #388e3c 100%);
+    border-color: #81c784;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 1.1rem;
+    padding: 0.3rem 0.9rem;
+    min-width: unset;
+    box-shadow: 0 2px 0 #1b5e20, 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.math-sym-btn.math-add-custom-btn:hover {
+    background: linear-gradient(180deg, #81c784 0%, #4caf50 100%);
+    border-color: #ffffff;
+    box-shadow: 0 4px 0 #1b5e20, 0 6px 14px rgba(76, 175, 80, 0.6);
+}
+
+.math-sym-btn.custom-sym {
+    background: linear-gradient(180deg, #ffecb3 0%, #ffd54f 100%);
+    border-color: #ffa000;
+    color: #271406;
+    font-weight: 900;
+    box-shadow: 0 2px 0 #ff8f00, 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.math-sym-btn.custom-sym:hover {
+    border-color: #ff6f00;
+    box-shadow: 0 4px 0 #ff8f00, 0 6px 12px rgba(255, 179, 0, 0.5);
 }
