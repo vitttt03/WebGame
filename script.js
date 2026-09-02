@@ -109,7 +109,7 @@ function changeVolume(val) {
     } else {
         isMuted = false;
         if (bgmAudio.paused) {
-            bgmAudio.play().catch(() => {});
+            bgmAudio.play().catch(() => { });
         }
     }
 
@@ -562,7 +562,7 @@ function renderBattlefieldActors() {
             flowerSlot.style.top = topPos;
             flowerSlot.style.left = '8.5%';
             flowerSlot.innerHTML = `
-                <img class="sunflower-row-actor" id="sunflower-actor-${rowIdx}" src="${cleanFlowerDataUrl || 'images/flower.jpg'}" alt="Sunflower ${rowIdx+1}" title="Hoa Hướng Dương Hàng ${rowIdx+1}" style="animation-delay: ${(rowIdx * 0.35) % 1.5}s;">
+                <img class="sunflower-row-actor" id="sunflower-actor-${rowIdx}" src="${cleanFlowerDataUrl || 'images/flower.jpg'}" alt="Sunflower ${rowIdx + 1}" title="Hoa Hướng Dương Hàng ${rowIdx + 1}" style="animation-delay: ${(rowIdx * 0.35) % 1.5}s;">
             `;
             sunflowersContainer.appendChild(flowerSlot);
         });
@@ -587,7 +587,7 @@ function renderBattlefieldActors() {
         plantSlot.style.top = plantTop;
         plantSlot.style.left = plantLeft;
         plantSlot.innerHTML = `
-            <img class="plant-row-actor" id="plant-actor-${i}" src="${cleanPlantDataUrl || 'images/plant1.jpg'}" alt="Peashooter ${i+1}" title="Cây Đợt ${i+1}" style="animation-delay: ${(i * 0.2) % 1.2}s;">
+            <img class="plant-row-actor" id="plant-actor-${i}" src="${cleanPlantDataUrl || 'images/plant1.jpg'}" alt="Peashooter ${i + 1}" title="Cây Đợt ${i + 1}" style="animation-delay: ${(i * 0.2) % 1.2}s;">
         `;
         plantsContainer.appendChild(plantSlot);
 
@@ -597,7 +597,7 @@ function renderBattlefieldActors() {
         zombieSlot.style.top = zombieTop;
         zombieSlot.style.left = zombieLeft;
         zombieSlot.innerHTML = `
-            <img class="zombie-row-actor ${q.completed ? 'defeated' : ''}" id="zombie-actor-${i}" src="${cleanZombieDataUrl || 'images/zombie1.jpg'}" alt="Zombie ${i+1}" title="Zombie Đợt ${i+1}" style="animation-delay: ${(i * 0.25) % 1.4}s;">
+            <img class="zombie-row-actor ${q.completed ? 'defeated' : ''}" id="zombie-actor-${i}" src="${cleanZombieDataUrl || 'images/zombie1.jpg'}" alt="Zombie ${i + 1}" title="Zombie Đợt ${i + 1}" style="animation-delay: ${(i * 0.25) % 1.4}s;">
         `;
         zombiesContainer.appendChild(zombieSlot);
     });
@@ -745,7 +745,7 @@ function renderNumberGrid() {
             <div class="lawn-number-digit">${idx + 1}</div>
             <div class="lawn-number-sub">ĐỢT ${idx + 1}</div>
         `;
-        
+
         if (!q.completed) {
             card.onclick = () => openQuestion(idx);
         }
@@ -774,7 +774,7 @@ function openQuestion(index) {
 
 function returnToNumberSelect() {
     PvZAudio.playClick();
-    
+
     // Kiểm tra đã chiến thắng tất cả các câu chưa
     const completedCount = questions.filter(q => q.completed).length;
     if (completedCount >= questions.length && questions.length > 0) {
@@ -1070,10 +1070,10 @@ function openAuthModal() {
     const modal = document.getElementById('auth-modal');
     const input = document.getElementById('admin-auth-input');
     const errorMsg = document.getElementById('auth-error-msg');
-    
+
     if (input) input.value = '';
     if (errorMsg) errorMsg.style.display = 'none';
-    
+
     if (modal) {
         modal.classList.add('active');
         setTimeout(() => {
@@ -1432,7 +1432,7 @@ function makeImageTransparent(src, onComplete, isOuterBg, isInnerBg) {
 function processTransparentSprites() {
     // 1. Tách nền Peashooter (plant1.jpg) cho tất cả các cây
     makeImageTransparent(
-        "images/plant1.jpg", 
+        "images/plant1.jpg",
         (cleanUrl) => {
             cleanPlantDataUrl = cleanUrl;
             document.querySelectorAll('.plant-row-actor, .intro-peashooter-actor').forEach(el => {
@@ -1458,7 +1458,7 @@ function processTransparentSprites() {
 
     // 2. Tách nền Zombie (zombie1.jpg) cho tất cả các zombie
     makeImageTransparent(
-        "images/zombie1.jpg", 
+        "images/zombie1.jpg",
         (cleanUrl) => {
             cleanZombieDataUrl = cleanUrl;
             document.querySelectorAll('.zombie-row-actor, .intro-zombie-actor').forEach(el => {
