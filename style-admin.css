@@ -93,20 +93,52 @@
 
 .btn-small {
     font-family: var(--font-pvz);
-    padding: 0.6rem 1.4rem;
-    font-size: 1.1rem;
-    border-radius: 14px;
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 12px;
     background: #e53935;
     color: white;
     border: 2px solid #ef5350;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0,0,0,0.5);
     transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    outline: none;
 }
 
 .btn-small:hover {
-    background: #c62828;
     transform: scale(1.05);
+}
+
+.btn-small.btn-edit {
+    background: linear-gradient(180deg, #1e88e5 0%, #1565c0 100%);
+    border-color: #64b5f6;
+}
+
+.btn-small.btn-edit:hover {
+    background: linear-gradient(180deg, #2196f3 0%, #1976d2 100%);
+}
+
+.btn-small.btn-delete {
+    background: linear-gradient(180deg, #e53935 0%, #c62828 100%);
+    border-color: #ef9a9a;
+}
+
+.btn-small.btn-delete:hover {
+    background: linear-gradient(180deg, #f44336 0%, #d32f2f 100%);
+}
+
+.btn-cancel-edit {
+    background: linear-gradient(180deg, #78909c 0%, #455a64 100%) !important;
+    border-color: #b0bec5 !important;
+}
+
+.add-question-form.editing-mode {
+    border-color: #ffd54f;
+    box-shadow: 0 0 25px rgba(255, 213, 79, 0.4);
+    background: rgba(46, 26, 17, 0.6);
 }
 
 .add-question-form {
@@ -192,4 +224,75 @@
     0%, 100% { transform: translateX(0); }
     20%, 60% { transform: translateX(-8px); }
     40%, 80% { transform: translateX(8px); }
+}
+
+/* ================== MATH SYMBOLS TOOLBAR ================== */
+.math-toolbar-box {
+    background: linear-gradient(180deg, rgba(78, 52, 46, 0.9) 0%, rgba(46, 26, 17, 0.95) 100%);
+    border: 2px dashed #ffd54f;
+    border-radius: 14px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1.2rem;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.math-toolbar-title {
+    font-family: var(--font-pvz);
+    font-size: 1rem;
+    color: #ffe082;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.math-symbol-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.math-sym-btn {
+    background: linear-gradient(180deg, #fff9c4 0%, #ffecb3 100%);
+    border: 2px solid #ffb300;
+    border-radius: 8px;
+    color: #3e2723;
+    font-family: var(--font-sub);
+    font-size: 1.05rem;
+    font-weight: 800;
+    padding: 0.3rem 0.6rem;
+    min-width: 36px;
+    height: 34px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #b26a00, 0 3px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.12s ease;
+    user-select: none;
+}
+
+.math-sym-btn:hover {
+    transform: translateY(-2px) scale(1.08);
+    background: #ffffff;
+    border-color: #ffd54f;
+    box-shadow: 0 4px 0 #b26a00, 0 6px 12px rgba(255, 213, 79, 0.4);
+}
+
+.math-sym-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 #b26a00;
+}
+
+.math-sym-btn.katex-btn {
+    background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
+    border-color: #4caf50;
+    color: #1b5e20;
+    box-shadow: 0 2px 0 #2e7d32, 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.math-sym-btn.katex-btn:hover {
+    border-color: #81c784;
+    box-shadow: 0 4px 0 #2e7d32, 0 6px 12px rgba(76, 175, 80, 0.4);
 }

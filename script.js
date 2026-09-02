@@ -431,15 +431,63 @@ function renderApp() {
                     <!-- Questions rendered here -->
                 </div>
 
-                <form class="add-question-form" onsubmit="addQuestion(event)">
-                    <h3>+ Thêm Câu Hỏi Mới</h3>
+                <form class="add-question-form" id="admin-question-form" onsubmit="handleFormSubmit(event)">
+                    <h3 id="form-title">+ Thêm Câu Hỏi Mới</h3>
+
+                    <!-- BẢNG KÝ HIỆU TOÁN HỌC NHANH -->
+                    <div class="math-toolbar-box">
+                        <div class="math-toolbar-title">
+                            <span>📐 BẢNG KÝ HIỆU TOÁN HỌC (Bấm để chèn trực tiếp vào ô đang nhập):</span>
+                        </div>
+                        <div class="math-symbol-tags">
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('+')" title="Cộng">+</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('−')" title="Trừ">−</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('×')" title="Nhân">×</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('÷')" title="Chia">÷</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('±')" title="Cộng trừ">±</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('=')" title="Bằng">=</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('≠')" title="Khác">≠</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('≈')" title="Xấp xỉ">≈</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('<')" title="Nhỏ hơn">&lt;</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('>')" title="Lớn hơn">&gt;</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('≤')" title="Nhỏ hơn hoặc bằng">≤</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('≥')" title="Lớn hơn hoặc bằng">≥</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('²')" title="Bình phương">x²</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('³')" title="Lập phương">x³</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('ⁿ')" title="Mũ n">xⁿ</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('√')" title="Căn bậc hai">√</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∛')" title="Căn bậc ba">∛</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('π')" title="Số Pi">π</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('°')" title="Độ">°</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('½')" title="Một phần hai">½</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('⅓')" title="Một phần ba">⅓</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('¼')" title="Một phần tư">¼</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('¾')" title="Ba phần tư">¾</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('△')" title="Tam giác">△</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∠')" title="Góc">∠</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('⊥')" title="Vuông góc">⊥</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∥')" title="Song song">∥</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('α')" title="Alpha">α</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('β')" title="Beta">β</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('Δ')" title="Delta">Δ</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∞')" title="Vô cực">∞</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∈')" title="Thuộc">∈</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∉')" title="Không thuộc">∉</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('⊂')" title="Tập con">⊂</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∪')" title="Hợp">∪</button>
+                            <button type="button" class="math-sym-btn" onclick="insertMathSymbol('∩')" title="Giao">∩</button>
+                            <button type="button" class="math-sym-btn katex-btn" onclick="insertMathSymbol('$\\frac{a}{b}$')" title="Chèn phân số LaTeX">$\frac{a}{b}$</button>
+                            <button type="button" class="math-sym-btn katex-btn" onclick="insertMathSymbol('$\\sqrt{x}$')" title="Chèn căn thức LaTeX">$\sqrt{x}$</button>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label>Tên Đợt Tấn Công</label>
                         <input type="text" id="admin-mission" placeholder="VD: Đợt 06: Zombie Vũ Trụ xuất hiện" required>
                     </div>
                     <div class="form-group">
                         <label>Nội dung câu hỏi</label>
-                        <input type="text" id="admin-question" placeholder="VD: 15 + 25 = ?" required>
+                        <input type="text" id="admin-question" placeholder="VD: 15 + 25 = ? hoặc x² + 2x = 0" required>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
@@ -468,8 +516,11 @@ function renderApp() {
                             <option value="3">D</option>
                         </select>
                     </div>
-                    <button type="submit" class="pvz-btn" style="margin-top: 1rem; width: 100%;">
+                    <button type="submit" id="form-submit-btn" class="pvz-btn" style="margin-top: 1rem; width: 100%;">
                         + LƯU CÂU HỎI VÀO GAME
+                    </button>
+                    <button type="button" id="form-cancel-btn" class="pvz-btn btn-cancel-edit" style="display: none; margin-top: 0.8rem; width: 100%;" onclick="cancelEditQuestion()">
+                        ❌ HỦY CHỈNH SỬA
                     </button>
                     <button type="button" class="btn-small" style="margin-top: 1.2rem; background: #546e7a;" onclick="resetToDefault()">
                         Khôi phục câu hỏi PvZ gốc
@@ -784,6 +835,9 @@ function loadQuestion(index) {
         btn.onclick = () => handleAnswer(btn, idx);
         grid.appendChild(btn);
     });
+
+    // Kích hoạt render công thức toán học KaTeX nếu có
+    triggerMathRender(document.getElementById('lawn-question-board'));
 }
 
 function handleAnswer(btnElement, selectedIdx) {
@@ -1100,6 +1154,51 @@ function closeAdmin() {
     showScreen('screen-intro');
 }
 
+// --- MATH SYMBOLS & KATEX INTEGRATION ---
+let lastFocusedInput = null;
+
+document.addEventListener('focusin', (e) => {
+    if (e.target && e.target.matches('#admin-question, #admin-opt-0, #admin-opt-1, #admin-opt-2, #admin-opt-3, #admin-mission')) {
+        lastFocusedInput = e.target;
+    }
+});
+
+function insertMathSymbol(symbol) {
+    PvZAudio.playClick();
+    if (!lastFocusedInput) {
+        lastFocusedInput = document.getElementById('admin-question') || document.getElementById('admin-opt-0');
+    }
+    if (lastFocusedInput) {
+        const start = lastFocusedInput.selectionStart ?? lastFocusedInput.value.length;
+        const end = lastFocusedInput.selectionEnd ?? lastFocusedInput.value.length;
+        const text = lastFocusedInput.value;
+        lastFocusedInput.value = text.substring(0, start) + symbol + text.substring(end);
+        lastFocusedInput.focus();
+        lastFocusedInput.selectionStart = lastFocusedInput.selectionEnd = start + symbol.length;
+    }
+}
+
+function triggerMathRender(containerEl) {
+    if (!containerEl) return;
+    try {
+        if (typeof renderMathInElement === 'function') {
+            renderMathInElement(containerEl, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false },
+                    { left: "\\(", right: "\\)", display: false },
+                    { left: "\\[", right: "\\]", display: true }
+                ],
+                throwOnError: false
+            });
+        }
+    } catch (e) {
+        console.warn("KaTeX render error:", e);
+    }
+}
+
+let editingQuestionIndex = -1;
+
 function renderAdminQuestions() {
     const list = document.getElementById('admin-question-list');
     if (!list) return;
@@ -1120,21 +1219,86 @@ function renderAdminQuestions() {
                 <span><strong>Câu hỏi:</strong> ${q.question}</span><br>
                 <span style="color: #a5d6a7;"><strong>Đáp án đúng:</strong> ${q.options[q.correctIndex]}</span>
             </div>
-            <button class="btn-small" onclick="deleteQuestion(${index})">Xóa</button>
+            <div class="question-item-actions" style="display: flex; gap: 8px; flex-shrink: 0;">
+                <button class="btn-small btn-edit" onclick="startEditQuestion(${index})" title="Chỉnh sửa câu hỏi này">✏️ Sửa</button>
+                <button class="btn-small btn-delete" onclick="deleteQuestion(${index})" title="Xóa câu hỏi này">🗑️ Xóa</button>
+            </div>
         `;
         list.appendChild(item);
     });
+
+    triggerMathRender(list);
 }
 
-function addQuestion(e) {
+function startEditQuestion(index) {
+    PvZAudio.playClick();
+    if (index < 0 || index >= questions.length) return;
+
+    editingQuestionIndex = index;
+    const q = questions[index];
+
+    // Điền dữ liệu câu hỏi vào Form
+    const missionInput = document.getElementById('admin-mission');
+    const questionInput = document.getElementById('admin-question');
+    const opt0Input = document.getElementById('admin-opt-0');
+    const opt1Input = document.getElementById('admin-opt-1');
+    const opt2Input = document.getElementById('admin-opt-2');
+    const opt3Input = document.getElementById('admin-opt-3');
+    const correctSelect = document.getElementById('admin-correct');
+
+    if (missionInput) missionInput.value = q.mission || '';
+    if (questionInput) questionInput.value = q.question || '';
+    if (opt0Input) opt0Input.value = q.options[0] || '';
+    if (opt1Input) opt1Input.value = q.options[1] || '';
+    if (opt2Input) opt2Input.value = q.options[2] || '';
+    if (opt3Input) opt3Input.value = q.options[3] || '';
+    if (correctSelect) correctSelect.value = q.correctIndex !== undefined ? q.correctIndex : 0;
+
+    // Cập nhật giao diện Form sang chế độ chỉnh sửa
+    const formTitle = document.getElementById('form-title');
+    const submitBtn = document.getElementById('form-submit-btn');
+    const cancelBtn = document.getElementById('form-cancel-btn');
+    const formEl = document.getElementById('admin-question-form');
+
+    if (formTitle) formTitle.innerText = `✏️ Chỉnh Sửa Câu Hỏi (Đợt ${index + 1})`;
+    if (submitBtn) submitBtn.innerText = `💾 CẬP NHẬT CÂU HỎI`;
+    if (cancelBtn) cancelBtn.style.display = 'block';
+    if (formEl) {
+        formEl.classList.add('editing-mode');
+        formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    if (questionInput) questionInput.focus();
+}
+
+function cancelEditQuestion() {
+    PvZAudio.playClick();
+    editingQuestionIndex = -1;
+
+    const formEl = document.getElementById('admin-question-form');
+    if (formEl) {
+        formEl.reset();
+        formEl.classList.remove('editing-mode');
+    }
+
+    const formTitle = document.getElementById('form-title');
+    const submitBtn = document.getElementById('form-submit-btn');
+    const cancelBtn = document.getElementById('form-cancel-btn');
+
+    if (formTitle) formTitle.innerText = '+ Thêm Câu Hỏi Mới';
+    if (submitBtn) submitBtn.innerText = '+ LƯU CÂU HỎI VÀO GAME';
+    if (cancelBtn) cancelBtn.style.display = 'none';
+}
+
+function handleFormSubmit(e) {
     e.preventDefault();
 
-    const mission = document.getElementById('admin-mission').value;
-    const questionText = document.getElementById('admin-question').value;
-    const opt0 = document.getElementById('admin-opt-0').value;
-    const opt1 = document.getElementById('admin-opt-1').value;
-    const opt2 = document.getElementById('admin-opt-2').value;
-    const opt3 = document.getElementById('admin-opt-3').value;
+    const mission = document.getElementById('admin-mission').value.trim();
+    const questionText = document.getElementById('admin-question').value.trim();
+    const opt0 = document.getElementById('admin-opt-0').value.trim();
+    const opt1 = document.getElementById('admin-opt-1').value.trim();
+    const opt2 = document.getElementById('admin-opt-2').value.trim();
+    const opt3 = document.getElementById('admin-opt-3').value.trim();
     const correctStr = document.getElementById('admin-correct').value;
 
     if (!mission || !questionText || !opt0 || !opt1 || !opt2 || !opt3) {
@@ -1142,25 +1306,47 @@ function addQuestion(e) {
         return;
     }
 
-    const newQ = {
-        id: Date.now(),
-        mission: mission,
-        question: questionText,
-        options: [opt0, opt1, opt2, opt3],
-        correctIndex: parseInt(correctStr),
-        zombieType: "🧟",
-        completed: false
-    };
+    if (editingQuestionIndex >= 0 && editingQuestionIndex < questions.length) {
+        // === CẬP NHẬT CÂU HỎI ĐANG SỬA ===
+        questions[editingQuestionIndex].mission = mission;
+        questions[editingQuestionIndex].question = questionText;
+        questions[editingQuestionIndex].options = [opt0, opt1, opt2, opt3];
+        questions[editingQuestionIndex].correctIndex = parseInt(correctStr);
 
-    questions.push(newQ);
-    saveQuestions();
-    renderAdminQuestions();
+        PvZAudio.playCorrect();
+        saveQuestions();
+        renderAdminQuestions();
+        cancelEditQuestion();
 
-    e.target.reset();
+        alert("🎉 Đã cập nhật câu hỏi thành công!");
+    } else {
+        // === THÊM CÂU HỎI MỚI ===
+        const newQ = {
+            id: Date.now(),
+            mission: mission,
+            question: questionText,
+            options: [opt0, opt1, opt2, opt3],
+            correctIndex: parseInt(correctStr),
+            zombieType: "🧟",
+            completed: false
+        };
+
+        PvZAudio.playSun();
+        questions.push(newQ);
+        saveQuestions();
+        renderAdminQuestions();
+
+        e.target.reset();
+    }
 }
 
 function deleteQuestion(index) {
     if (confirm("Bạn có chắc chắn muốn xóa câu hỏi này?")) {
+        if (editingQuestionIndex === index) {
+            cancelEditQuestion();
+        } else if (editingQuestionIndex > index) {
+            editingQuestionIndex--;
+        }
         questions.splice(index, 1);
         saveQuestions();
         renderAdminQuestions();
