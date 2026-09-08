@@ -490,18 +490,22 @@ html, body {
 
 .question-title-text {
     font-family: var(--font-sub);
-    font-size: 2.2rem;
-    font-weight: 700;
-    line-height: 1.35;
+    font-size: clamp(2rem, 3.2vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.4;
     text-align: center;
     color: #ffffff;
     margin-bottom: 1.8rem;
-    padding: 1.1rem 1.6rem;
+    padding: 1.2rem 1.8rem;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 18px;
     border: 2px solid rgba(255, 255, 255, 0.2);
     width: 100%;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+}
+
+.question-title-text .katex {
+    font-size: 1.15em;
 }
 
 /* ================== ANSWER CARDS ================== */
@@ -514,8 +518,8 @@ html, body {
 
 .seed-card-btn {
     font-family: var(--font-sub);
-    font-size: 1.7rem;
-    font-weight: 700;
+    font-size: clamp(1.5rem, 2.2vw, 2.1rem);
+    font-weight: 800;
     color: #ffffff;
     background: linear-gradient(180deg, #607d8b 0%, #37474f 100%);
     border: 3px solid #b0bec5;
@@ -753,6 +757,6 @@ html, body {
 @media (max-width: 900px) {
     .pvz-main-title { font-size: 3.2rem; }
     .pvz-answers-grid { grid-template-columns: 1fr; }
-    .question-title-text { font-size: 1.8rem; }
-    .seed-card-btn { font-size: 1.4rem; }
+    .question-title-text { font-size: 2.1rem; }
+    .seed-card-btn { font-size: 1.7rem; }
 }

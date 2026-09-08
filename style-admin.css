@@ -82,14 +82,15 @@
 }
 
 .question-item-info {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    font-weight: 600;
     line-height: 1.6;
     color: #e2e8f0;
 }
 
 .question-item-info strong {
     font-family: var(--font-pvz);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     letter-spacing: 1px;
 }
 

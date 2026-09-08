@@ -580,8 +580,8 @@
 .lawn-number-board {
     position: absolute;
     top: 6%;
-    left: 32.5%;
-    width: 28%;
+    left: 27%;
+    width: 46%;
     height: 88%;
     display: flex;
     flex-direction: column;
@@ -594,26 +594,26 @@
 
 .lawn-select-header {
     width: 100%;
-    background: linear-gradient(180deg, rgba(62, 39, 35, 0.94) 0%, rgba(39, 20, 6, 0.96) 100%);
-    border: 3px solid #8d6e63;
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-    padding: 0.5rem 0.8rem;
+    background: linear-gradient(180deg, rgba(62, 39, 35, 0.96) 0%, rgba(39, 20, 6, 0.98) 100%);
+    border: 4px solid #8d6e63;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    padding: 0.8rem 1.4rem;
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .lawn-select-title {
     font-family: var(--font-pvz);
-    font-size: clamp(1rem, 1.3vw, 1.35rem);
+    font-size: clamp(1.35rem, 1.9vw, 1.9rem);
     color: #ffd54f;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .lawn-select-progress {
     font-family: var(--font-sub);
-    font-size: clamp(0.85rem, 1vw, 1rem);
+    font-size: clamp(1.05rem, 1.35vw, 1.35rem);
     font-weight: 700;
     color: #a5d6a7;
 }
@@ -621,7 +621,7 @@
 .lawn-number-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 14px;
     width: 100%;
     flex: 1;
     align-content: center;
@@ -629,26 +629,26 @@
 
 .lawn-number-card {
     background: linear-gradient(180deg, #8d6e63 0%, #5d4037 60%, #3e2723 100%);
-    border: 3px solid #ffd54f;
-    border-radius: 16px;
+    border: 4px solid #ffd54f;
+    border-radius: 20px;
     aspect-ratio: 1 / 1;
-    max-height: 100px;
+    max-height: 135px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    box-shadow: 0 5px 0 #271406, 0 8px 16px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 6px 0 #271406, 0 10px 20px rgba(0, 0, 0, 0.65);
     transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
     overflow: hidden;
 }
 
 .lawn-number-card:hover:not(.completed) {
-    transform: translateY(-5px) scale(1.06);
+    transform: translateY(-6px) scale(1.07);
     border-color: #fff9c4;
     background: linear-gradient(180deg, #a1887f 0%, #6d4c41 60%, #4e342e 100%);
-    box-shadow: 0 8px 0 #271406, 0 12px 20px rgba(255, 213, 79, 0.45);
+    box-shadow: 0 10px 0 #271406, 0 14px 24px rgba(255, 213, 79, 0.5);
 }
 
 .lawn-number-card:active:not(.completed) {
@@ -658,7 +658,7 @@
 
 .lawn-number-digit {
     font-family: var(--font-pvz);
-    font-size: clamp(1.8rem, 2.6vw, 2.8rem);
+    font-size: clamp(2.4rem, 3.6vw, 3.6rem);
     color: #ffeb3b;
     text-shadow: 
         -2px -2px 0 #1b5e20,  
@@ -671,17 +671,20 @@
 
 .lawn-number-sub {
     font-family: var(--font-sub);
-    font-size: clamp(0.7rem, 0.85vw, 0.85rem);
-    font-weight: 700;
+    font-size: clamp(0.95rem, 1.2vw, 1.25rem);
+    font-weight: 800;
     color: #ffffff;
-    margin-top: 2px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
-/* Completed state with blooming sunflower */
+/* Completed state with blooming yellow sunflower */
 .lawn-number-card.completed {
-    background: linear-gradient(180deg, #66bb6a 0%, #388e3c 60%, #2e7d32 100%);
-    border-color: #a5d6a7;
-    box-shadow: 0 5px 0 #1b5e20, 0 8px 16px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(180deg, #fbc02d 0%, #f57f17 100%) !important;
+    border-color: #ffe082 !important;
+    box-shadow: 0 6px 0 #e65100, 0 10px 20px rgba(255, 179, 0, 0.6) !important;
     cursor: default;
 }
 
@@ -690,12 +693,16 @@
 }
 
 .lawn-number-card.completed .lawn-number-sub {
-    color: #fff9c4;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: clamp(1rem, 1.25vw, 1.3rem);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .lawn-number-card.completed::before {
     content: '🌻';
-    font-size: clamp(2rem, 3vw, 3rem);
+    font-size: clamp(2.6rem, 4vw, 4rem);
+    filter: drop-shadow(0 0 10px #fff59d);
     animation: plantDance 1.6s infinite alternate;
 }
 
@@ -783,14 +790,18 @@
 
 .lawn-question-text {
     font-family: var(--font-sub);
-    font-size: clamp(1.15rem, 1.6vw, 1.55rem);
-    font-weight: 700;
-    line-height: 1.4;
+    font-size: clamp(1.5rem, 2.3vw, 2.25rem);
+    font-weight: 800;
+    line-height: 1.45;
     text-align: center;
     color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.85);
-    padding: 4px 0.5rem;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+    padding: 6px 0.75rem;
     word-break: break-word;
+}
+
+.lawn-question-text .katex {
+    font-size: 1.15em;
 }
 
 /* 4 Answer Cards Planted on Grass Grid - RỘNG GẤP ĐÔI CHIỀU NGANG THOÁNG ĐÃNG */
@@ -804,13 +815,14 @@
 
 .lawn-answer-card {
     font-family: var(--font-sub);
-    font-size: clamp(1.05rem, 1.35vw, 1.35rem);
-    font-weight: 700;
+    font-size: clamp(1.4rem, 1.95vw, 1.95rem);
+    font-weight: 800;
+    line-height: 1.4;
     color: #ffffff;
     background: linear-gradient(180deg, rgba(96, 125, 139, 0.96) 0%, rgba(55, 71, 79, 0.98) 100%);
     border: 3px solid #b0bec5;
-    border-radius: 16px;
-    padding: 0.9rem 1.4rem;
+    border-radius: 18px;
+    padding: 1.1rem 1.5rem;
     cursor: pointer;
     box-shadow: 0 6px 0 #1b263b, 0 10px 20px rgba(0, 0, 0, 0.55);
     display: flex;
@@ -824,10 +836,14 @@
 .lawn-answer-card .prefix {
     font-family: var(--font-pvz);
     color: #ffd54f;
-    font-size: clamp(1.3rem, 1.7vw, 1.7rem);
-    margin-right: 12px;
+    font-size: clamp(1.6rem, 2.3vw, 2.3rem);
+    margin-right: 14px;
     flex-shrink: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.lawn-answer-card .katex {
+    font-size: 1.15em;
 }
 
 .lawn-answer-card:hover:not(:disabled) {

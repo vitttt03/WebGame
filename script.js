@@ -98,6 +98,45 @@ document.addEventListener('click', enableAudioOnFirstTouch, { once: true });
 document.addEventListener('touchstart', enableAudioOnFirstTouch, { once: true });
 document.addEventListener('keydown', enableAudioOnFirstTouch, { once: true });
 
+// --- FULLSCREEN TOGGLE SYSTEM (Bấm phím 'F' để bật/tắt toàn màn hình) ---
+function toggleFullscreen() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+            docEl.requestFullscreen().catch(err => console.warn('Fullscreen request denied:', err));
+        } else if (docEl.webkitRequestFullscreen) {
+            docEl.webkitRequestFullscreen();
+        } else if (docEl.mozRequestFullScreen) {
+            docEl.mozRequestFullScreen();
+        } else if (docEl.msRequestFullscreen) {
+            docEl.msRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(err => console.warn('Exit fullscreen error:', err));
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+}
+
+// Bắt sự kiện phím 'F' / 'f' trên toàn bộ ứng dụng (trừ khi đang nhập liệu vào thẻ input)
+document.addEventListener('keydown', (e) => {
+    const activeTag = document.activeElement ? document.activeElement.tagName.toUpperCase() : '';
+    if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || document.activeElement.isContentEditable) {
+        return;
+    }
+
+    if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
+    }
+});
+
 // Change volume (0 - 100)
 function changeVolume(val) {
     const num = Math.max(0, Math.min(100, parseInt(val) || 0));
@@ -706,7 +745,7 @@ function renderNumberGrid() {
         card.className = `lawn-number-card ${q.completed ? 'completed' : ''}`;
         card.innerHTML = `
             <div class="lawn-number-digit">${idx + 1}</div>
-            <div class="lawn-number-sub">ĐỢT ${idx + 1}</div>
+            <div class="lawn-number-sub">${q.completed ? '🌻 ĐÃ XONG' : '🌼 ĐỢT ' + (idx + 1)}</div>
         `;
 
         if (!q.completed) {
