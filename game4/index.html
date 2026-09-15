@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhiệm Vụ Giải Cứu - Game Trắc Nghiệm Tương Tác</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Luckiest+Guy&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Game 4 Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- MAIN GAME WRAPPER -->
+    <div id="game-app">
+
+        <!-- HEADER BAR -->
+        <header class="game-header">
+            <div class="header-left">
+                <h1 class="game-title">🆘 NHIỆM VỤ GIẢI CỨU</h1>
+            </div>
+
+            <div class="header-status">
+                <div class="rescue-counter-badge">
+                    <span class="badge-icon">🏆</span>
+                    <span class="badge-text">Đã Giải Cứu: <strong id="rescued-count">0</strong>/<span id="total-count">4</span></span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <!-- Volume Widget Hover Expand -->
+                <div class="volume-widget" title="Rê chuột để chỉnh âm lượng">
+                    <button class="volume-btn" onclick="toggleSound()" title="Bật/Tắt âm thanh">
+                        <span id="sound-icon">🔊</span>
+                    </button>
+                    <div class="volume-slider-panel">
+                        <input type="range" class="pvz-slider" id="top-vol-slider" min="0" max="100" value="50" oninput="changeVolume(this.value)">
+                        <span class="volume-label" id="top-vol-txt">50%</span>
+                    </div>
+                </div>
+
+                <button class="btn-head btn-admin" onclick="handleGame4SettingsClick()" title="Cài đặt / Tạm dừng">
+                    ⚙️
+                </button>
+                <button class="btn-head btn-restart" onclick="restartGame()" title="Chơi lại từ đầu">
+                    🔄 Đấu Trận Mới
+                </button>
+            </div>
+        </header>
+
+        <!-- PAUSE MODAL GAME 4 -->
+        <div id="game4-pause-modal" class="modal-backdrop">
+            <div class="modal-card auth-card" style="max-width: 440px; text-align: center; padding: 2.2rem 2rem;">
+                <div style="font-size: 3.5rem; margin-bottom: 0.6rem;">⏸️</div>
+                <h2 style="font-family: var(--font-title); font-size: 2rem; color: #ffedd5; margin-bottom: 0.6rem;">TRẬN ĐẤU TẠM DỪNG</h2>
+                <p style="color: #cbd5e1; font-size: 1.05rem; margin-bottom: 1.8rem; line-height: 1.5;">Bạn có muốn tiếp tục trận đấu hay quay về màn hình Play?</p>
+                <button class="g4-pause-btn g4-pause-btn-primary" onclick="closeGame4PauseModal()">
+                    ▶ TIẾP TỤC CHƠI
+                </button>
+                <button class="g4-pause-btn g4-pause-btn-secondary" onclick="exitGame4ToPlayScreen()">
+                    🚪 VỀ MÀN HÌNH PLAY
+                </button>
+            </div>
+        </div>
+
+        <!-- GAME ARENA / SCENE CONTAINER -->
+        <main class="arena-container" id="arena-container">
+            <!-- BACKGROUND IMAGE SCENE -->
+            <div class="scene-background"></div>
+
+            <!-- RESCUE BASE CAMP (RIGHT SIDE) -->
+            <div class="rescue-base-camp" id="rescue-base">
+                <div class="rescuer-hero" id="rescuer-hero">
+                    <img src="../images/anhGiaiCuuG4.png" alt="Người Cứu Hộ" class="rescuer-img">
+                    <div class="hero-speech-bubble" id="hero-bubble">
+                        "Hãy trả lời đúng để giải cứu các bạn!" 🆘
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESCUED CELEBRATION GROUP (BOTTOM RIGHT) -->
+            <div class="rescued-group" id="rescued-group"></div>
+
+            <!-- DYNAMIC TRAPPED CHARACTERS PATH (LEFT / CENTER) -->
+            <div class="trapped-path" id="trapped-path">
+                <!-- Dynamic Character Cards populated by JavaScript -->
+            </div>
+        </main>
+
+        <!-- FOOTER HINT -->
+        <footer class="game-footer">
+            <span>💡 Mẹo trình chiếu: Bấm nút <kbd>F</kbd> để bật/tắt Toàn Màn Hình | Nhấp chọn nhân vật bị đá đè để mở câu hỏi giải cứu!</span>
+        </footer>
+
+    </div>
+
+    <!-- QUESTION MODAL -->
+    <div class="modal-backdrop" id="question-modal">
+        <div class="modal-card question-card">
+            <div class="modal-header">
+                <div class="q-badge" id="modal-q-badge">
+                    <span class="q-badge-icon">🆘</span>
+                    <span id="modal-team-title">GIẢI CỨU ĐỘI XANH • CÂU HỎI 1</span>
+                </div>
+                <button class="btn-close-modal" onclick="closeQuestionModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Question Text -->
+                <div class="question-text-box" id="question-text">
+                    Đang tải câu hỏi...
+                </div>
+
+                <!-- Answer Choices Grid (A, B, C, D) -->
+                <div class="answers-grid" id="answers-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Status Toast inside Modal -->
+            <div class="modal-status-toast" id="modal-status-toast"></div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL (MẬT KHẨU UYEN123) -->
+    <div class="modal-backdrop" id="auth-modal">
+        <div class="modal-card auth-card">
+            <div class="modal-header">
+                <h3>🔐 XÁC THỰC QUẢN TRỊ VIÊN</h3>
+                <button class="btn-close-modal" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <form onsubmit="submitAdminAuth(event)">
+                <div class="auth-body">
+                    <p class="auth-desc">Vui lòng nhập mật khẩu quản trị để chỉnh sửa ngân hàng câu hỏi:</p>
+                    <input type="password" id="admin-auth-input" class="auth-input" placeholder="Nhập mật khẩu (••••••)" autocomplete="off" required>
+                    <div class="auth-error-msg" id="auth-error-msg">⚠️ Mật khẩu không chính xác! Thử lại.</div>
+                </div>
+                <div class="auth-footer">
+                    <button type="button" class="btn-cancel" onclick="closeAuthModal()">Hủy</button>
+                    <button type="submit" class="btn-submit">Xác Nhận ➔</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN MANAGEMENT SCREEN MODAL -->
+    <div class="modal-backdrop" id="admin-modal">
+        <div class="modal-card admin-card">
+            <div class="modal-header admin-modal-header">
+                <h2>🛠️ QUẢN LÝ CÂU HỎI & CẤU HÌNH GAME GIẢI CỨU</h2>
+                <button class="btn-close-modal" onclick="closeAdminModal()">&times;</button>
+            </div>
+
+            <div class="admin-body">
+                <!-- TOP SETTINGS PANEL -->
+                <div class="admin-settings-bar">
+                    <div class="setting-item">
+                        <label for="setting-char-count">👥 Số lượng nhân vật/câu hỏi trong game:</label>
+                        <select id="setting-char-count" onchange="updateCharCountSetting(this.value)">
+                            <option value="4">4 Nhân vật (Mặc định)</option>
+                            <option value="5">5 Nhân vật</option>
+                            <option value="6">6 Nhân vật</option>
+                            <option value="7">7 Nhân vật</option>
+                            <option value="8">8 Nhân vật (Tối đa)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-actions">
+                        <button class="btn-admin-act btn-export" onclick="exportQuestionsJSON()">📥 Tải JSON</button>
+                        <label class="btn-admin-act btn-import">
+                            📤 Nhập JSON
+                            <input type="file" id="import-json-file" accept=".json" onchange="importQuestionsJSON(event)" style="display:none;">
+                        </label>
+                        <button class="btn-admin-act btn-reset" onclick="resetDefaultQuestions()">🔄 Khôi Phục Mặc Định</button>
+                    </div>
+                </div>
+
+                <!-- ADD / EDIT QUESTION FORM -->
+                <div class="admin-form-section">
+                    <h3 id="form-title">➕ Thêm Câu Hỏi Mới</h3>
+                    <form id="admin-q-form" onsubmit="handleQuestionSubmit(event)">
+                        <input type="hidden" id="edit-q-id" value="">
+
+                        <div class="form-row">
+                            <div class="form-group flex-2">
+                                <label for="admin-q-title">🏷️ Tên đợt / Đội giải cứu:</label>
+                                <input type="text" id="admin-q-title" placeholder="VD: Đội Xanh - Giải cứu 1" required>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="admin-q-type">🗿 Nền tảng đá / Nhân vật:</label>
+                                <select id="admin-q-type">
+                                    <option value="1">1. Tảng đá lớn (Đội Xanh)</option>
+                                    <option value="2">2. Tảng đá xếp chồng (Đội Vàng)</option>
+                                    <option value="3">3. Tảng đá hình cầu (Đội Đỏ)</option>
+                                    <option value="4">4. Tảng đá tinh thể (Đội Tím)</option>
+                                    <option value="5">5. Tảng đá gỗ (Đội Xanh Lá)</option>
+                                    <option value="6">6. Tảng đá nhọn (Đội Cam)</option>
+                                    <option value="7">7. Cụm đá nhỏ (Đội Ngọc)</option>
+                                    <option value="8">8. Tảng đá có dây leo (Đội Hồng)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- QUESTION INPUT & MATH TOOLBAR -->
+                        <div class="form-group">
+                            <label for="admin-q-text">❓ Nội dung câu hỏi (Nhập KaTeX toán dạng \(x^2\)):</label>
+                            <!-- Math toolbar -->
+                            <div class="math-toolbar">
+                                <span class="tb-label">Chèn Toán:</span>
+                                <button type="button" onclick="insertMath('\\\\frac{a}{b}')">Phân số</button>
+                                <button type="button" onclick="insertMath('\\\\sqrt{x}')">Căn bậc 2</button>
+                                <button type="button" onclick="insertMath('x^{2}')">Mũ 2</button>
+                                <button type="button" onclick="insertMath('\\\\pm')">±</button>
+                                <button type="button" onclick="insertMath('\\\\pi')">π</button>
+                                <button type="button" onclick="insertMath('\\\\cdot')">•</button>
+                                <button type="button" onclick="insertMath('\\\\le')">≤ </button>
+                                <button type="button" onclick="insertMath('\\\\ge')">≥</button>
+                                <button type="button" onclick="insertMath('\\\\neq')">≠</button>
+                                <button type="button" onclick="insertMath('^{\\\\circ}')">° (Độ)</button>
+                            </div>
+                            <textarea id="admin-q-text" rows="3" placeholder="Nhập câu hỏi tại đây..." required></textarea>
+                        </div>
+
+                        <!-- OPTIONS INPUT (A, B, C, D) -->
+                        <div class="options-grid-form">
+                            <div class="form-group">
+                                <label>Option A:</label>
+                                <input type="text" id="admin-opt-0" placeholder="Đáp án A" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Option B:</label>
+                                <input type="text" id="admin-opt-1" placeholder="Đáp án B" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Option C:</label>
+                                <input type="text" id="admin-opt-2" placeholder="Đáp án C" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Option D:</label>
+                                <input type="text" id="admin-opt-3" placeholder="Đáp án D" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row align-end">
+                            <div class="form-group flex-1">
+                                <label for="admin-correct-opt">✅ Đáp án đúng:</label>
+                                <select id="admin-correct-opt">
+                                    <option value="0">A (Lựa chọn 1)</option>
+                                    <option value="1">B (Lựa chọn 2)</option>
+                                    <option value="2">C (Lựa chọn 3)</option>
+                                    <option value="3">D (Lựa chọn 4)</option>
+                                </select>
+                            </div>
+                            <div class="form-actions flex-1">
+                                <button type="button" class="btn-cancel-form" id="btn-cancel-edit" onclick="cancelEditForm()" style="display:none;">Hủy Sửa</button>
+                                <button type="submit" class="btn-save-q">💾 Lưu Câu Hỏi</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- QUESTIONS LIST -->
+                <div class="admin-list-section">
+                    <h3>📋 Danh Sách Câu Hỏi Trận Đấu (<span id="q-list-count">0</span>)</h3>
+                    <div class="questions-list-container" id="admin-questions-list">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VICTORY MODAL -->
+    <div class="modal-backdrop" id="victory-modal">
+        <div class="modal-card victory-card">
+            <canvas id="confetti-canvas"></canvas>
+            <div class="victory-content">
+                <div class="victory-icon">🎉 🏆 🌟</div>
+                <h2 class="victory-title">GIẢI CỨU THÀNH CÔNG!</h2>
+                <p class="victory-subtitle">Tất cả các bạn nhỏ đã được giải cứu an toàn về Căn Cứ Cứu Hộ!</p>
+                <div class="victory-banner-wrapper">
+                    <img src="../images/endGame4.png" alt="Chúc mừng hoàn thành giải cứu!" class="victory-celebration-img">
+                </div>
+
+                <div class="victory-stats">
+                    <div class="v-stat-box">
+                        <span class="v-label">Nhân vật đã cứu</span>
+                        <span class="v-val" id="v-stat-rescued">4/4</span>
+                    </div>
+                    <div class="v-stat-box">
+                        <span class="v-label">Điểm Hoàn Thành</span>
+                        <span class="v-val">100% 🌟</span>
+                    </div>
+                </div>
+
+                <div class="victory-actions">
+                    <button class="btn-v-act btn-v-replay" onclick="restartGame(); closeVictoryModal();">
+                        🔄 Chơi Trận Mới
+                    </button>
+                    <button class="btn-v-act btn-v-home" onclick="window.location.href='../index.html'">
+                        🏠 Về Trang Chủ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- START SCREEN MODAL -->
+    <div class="start-modal-overlay" id="start-modal">
+        <div class="start-modal-card">
+            <!-- TOP RIGHT CONTROLS: GEAR (ADMIN), HOME MENU & VOLUME WIDGET -->
+            <div class="start-screen-controls">
+                <a href="../index.html" class="start-ctrl-btn" title="Về Menu chọn game chính" style="text-decoration: none;">🏠</a>
+                <div class="volume-widget" title="Rê chuột để chỉnh âm lượng">
+                    <button class="volume-btn" onclick="toggleSound()" title="Bật/Tắt âm thanh">
+                        <span id="start-sound-icon">🔊</span>
+                    </button>
+                    <div class="volume-slider-panel">
+                        <input type="range" class="pvz-slider" id="start-vol-slider" min="0" max="100" value="50" oninput="changeVolume(this.value)">
+                        <span class="volume-label" id="start-vol-txt">50%</span>
+                    </div>
+                </div>
+                <button class="start-ctrl-btn" onclick="openAuthModal()" title="⚙️ Quản Lý Câu Hỏi">
+                    ⚙️
+                </button>
+            </div>
+
+            <img src="../images/startG4.png" alt="Save The Team - Start Screen" class="start-poster-img">
+            <button class="btn-start-play" onclick="startGameFromStartScreen()" title="Bắt Đầu Chơi">
+                <span class="play-icon">▶</span>
+                <span class="play-text">PLAY</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN SCRIPT -->
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,953 @@
+/* =========================================================
+   PLANTS VS. ZOMBIES - STAGE 1 BATTLEFIELD & TRANSITIONS
+   ========================================================= */
+
+.pvz-stage-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: #0d1b2a;
+    z-index: 1;
+    perspective: 1200px;
+}
+
+.pvz-stage-background {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    max-width: 177.78vh; /* 16:9 aspect ratio based on height */
+    max-height: 56.25vw; /* 16:9 aspect ratio based on width */
+    aspect-ratio: 16 / 9;
+    background-image: url('images/stage3.jpg');
+    background-size: 185% 100%;
+    background-position: 28% center;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
+    transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1), filter 1s ease;
+    overflow: hidden;
+    transform-style: preserve-3d;
+}
+
+/* ================== CINEMATIC FLY-IN FROM OUTSIDE (CHIẾU TỪ NGOÀI VÀO TRONG BÃI CỎ) ================== */
+#screen-game.entering .pvz-stage-background {
+    animation: cinematicFlyInFromOutside 2.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+@keyframes cinematicFlyInFromOutside {
+    0% {
+        /* Bắt đầu từ xa ngoài con đường phía ngoài */
+        background-size: 105% 100%;
+        background-position: 85% center;
+        transform: scale(0.78) translateZ(-160px) rotateY(5deg);
+        filter: brightness(1.2) contrast(1.05);
+    }
+    35% {
+        /* Lướt nhanh từ ngoài đường vào khu vườn */
+        background-size: 135% 100%;
+        background-position: 55% center;
+        transform: scale(0.9) translateZ(-60px) rotateY(2.5deg);
+    }
+    70% {
+        /* Lao sâu vào trung tâm thảm cỏ */
+        background-size: 175% 100%;
+        background-position: 32% center;
+        transform: scale(1.03) translateZ(15px) rotateY(0deg);
+    }
+    100% {
+        /* Khóa góc nhìn hoàn hảo vào bãi cỏ chính */
+        background-size: 185% 100%;
+        background-position: 28% center;
+        transform: scale(1) translateZ(0) rotateY(0deg);
+        filter: brightness(1);
+    }
+}
+
+/* ================== LIVING LAWN ANIMATIONS (STAGE 3) ================== */
+.lawn-living-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Dàn Hoa Hướng Dương (flower.jpg) - Đứng ở CỘT CỎ TRONG CÙNG BÊN TRÁI */
+.sunflower-column {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 24;
+    pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sunflower-slot {
+    position: absolute;
+    width: 9%;
+    height: 16%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Gốc cây tiếp đất ngay tâm ô cỏ */
+    padding-bottom: 2px;
+    pointer-events: auto;
+    box-sizing: border-box;
+}
+
+.sunflower-row-actor {
+    width: auto;
+    max-width: 90%;
+    max-height: 95%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.65));
+    animation: sunflowerDance 2.4s ease-in-out infinite alternate, sunflowerGlow 4s ease-in-out infinite;
+    transform-origin: center bottom;
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.sunflower-row-actor:hover {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 18px rgba(255, 235, 59, 0.95)) brightness(1.2);
+}
+
+@keyframes sunflowerDance {
+    0% {
+        transform: rotate(-6deg) scale(0.98, 1.02);
+    }
+    50% {
+        transform: rotate(2deg) scale(1.02, 0.98);
+    }
+    100% {
+        transform: rotate(7deg) scale(1, 1);
+    }
+}
+
+@keyframes sunflowerGlow {
+    0%, 100% {
+        filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.65));
+    }
+    50% {
+        filter: drop-shadow(0 0 14px rgba(255, 235, 59, 0.85)) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.65)) brightness(1.1);
+    }
+}
+
+/* Dàn cây Peashooter (plant1.jpg) - Gốc cây tiếp đất chuẩn xác tại tâm ô cỏ */
+.peashooter-column {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 25;
+    pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.plant-slot {
+    position: absolute;
+    width: 9%;
+    height: 16%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Gốc cây tiếp đất ngay tâm ô cỏ */
+    padding-bottom: 2px;
+    pointer-events: auto;
+    box-sizing: border-box;
+}
+
+.plant-row-actor {
+    width: auto;
+    max-width: 90%;
+    max-height: 95%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.65));
+    animation: peashooterSway 2.5s ease-in-out infinite alternate;
+    transform-origin: center bottom;
+    cursor: pointer;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.plant-row-actor:hover {
+    filter: drop-shadow(0 8px 16px rgba(118, 255, 3, 0.85)) brightness(1.15);
+}
+
+.plant-row-actor.celebrating {
+    animation: peashooterCelebrate 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) 2;
+}
+
+/* Dàn Zombie (zombie1.jpg) - TO LỚN HOÀNH TRÁNG VÀ CHÂN ĐỨNG CHÍNH GIỮA TÂM Ô */
+.zombie-column {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 25;
+    pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.zombie-slot {
+    position: absolute;
+    width: 10.5%;
+    height: 21%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Bàn chân zombie tiếp đất vững chãi ngay tâm ô cỏ */
+    padding-bottom: 2px;
+    pointer-events: auto;
+    box-sizing: border-box;
+}
+
+.zombie-row-actor {
+    width: clamp(65px, 6.8vw, 105px);
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.75));
+    animation: zombieSway 2.7s ease-in-out infinite alternate;
+    transform-origin: center bottom;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+.zombie-row-actor:hover {
+    filter: drop-shadow(0 10px 20px rgba(255, 23, 68, 0.95)) brightness(1.15);
+}
+
+.zombie-row-actor.hurt {
+    animation: zombieHurtKnockback 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: brightness(2) drop-shadow(0 0 20px #ff1744);
+}
+
+.zombie-row-actor.attacking {
+    animation: zombieLunge 0.8s ease-in-out;
+}
+
+.zombie-row-actor.falling-defeated {
+    animation: zombieDefeatedKnockdown 0.95s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    pointer-events: none;
+}
+
+.zombie-row-actor.defeated {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+@keyframes zombieDefeatedKnockdown {
+    0% {
+        transform: scale(1) rotate(0deg) translateY(0);
+        filter: brightness(2.2) drop-shadow(0 0 25px #ff1744);
+        opacity: 1;
+    }
+    25% {
+        transform: scale(1.1) translateX(15px) rotate(18deg) translateY(-10px);
+        filter: brightness(2.5) drop-shadow(0 0 35px #ffea00);
+    }
+    55% {
+        transform: scale(0.9) translateX(30px) rotate(55deg) translateY(12px);
+        opacity: 0.8;
+        filter: grayscale(0.5);
+    }
+    80% {
+        transform: scale(0.7) translateX(45px) rotate(85deg) translateY(25px);
+        opacity: 0.35;
+        filter: grayscale(1) brightness(0.4);
+    }
+    100% {
+        transform: scale(0.1) translateX(55px) rotate(90deg) translateY(40px);
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* Animated Pea Bullets Flying across the lawn */
+.stage-pea-bullet {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle at 35% 35%, #b9f6ca, #00e676 60%, #1b5e20);
+    border-radius: 50%;
+    box-shadow: 0 0 12px #69f0ae, 0 0 18px rgba(0, 230, 118, 0.9);
+    pointer-events: none;
+    z-index: 15;
+    animation: flyPea 1.4s linear infinite;
+}
+
+@keyframes flyPea {
+    0% {
+        transform: translateX(0) scale(0.9);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    85% {
+        opacity: 1;
+        transform: translateX(var(--fly-dist, 52vw)) scale(1.05);
+    }
+    90% {
+        opacity: 0.9;
+        transform: translateX(var(--fly-dist, 52vw)) scale(1.3);
+        box-shadow: 0 0 25px #ffea00, 0 0 40px #76ff03;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(var(--fly-dist, 52vw)) scale(0);
+    }
+}
+
+/* Floating Radiant Suns Produced by Sunflowers */
+.floating-sun-drop {
+    position: absolute;
+    font-size: 2.2rem;
+    filter: drop-shadow(0 0 12px #ffca28) drop-shadow(0 0 24px #ffd54f);
+    pointer-events: none;
+    z-index: 20;
+    animation: sunflowerSunDrop 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes sunflowerSunDrop {
+    0% {
+        transform: translateY(0px) rotate(0deg) scale(0.85);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateY(-22px) rotate(45deg) scale(1.15);
+        opacity: 1;
+        filter: drop-shadow(0 0 18px #fff59d) drop-shadow(0 0 32px #ffeb3b);
+    }
+    100% {
+        transform: translateY(-10px) rotate(90deg) scale(0.95);
+        opacity: 0.85;
+    }
+}
+
+/* Subtle Shambling Aura & Eyes for Zombies */
+.zombie-eye-glow {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #ff1744;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #ff1744, 0 0 20px #d50000;
+    animation: zombieBlink 4s infinite;
+}
+
+@keyframes zombieBlink {
+    0%, 90%, 100% { opacity: 0.9; transform: scale(1); }
+    95% { opacity: 0; transform: scale(0.2); }
+}
+
+/* Flag wave animation for Flag Zombie */
+.flag-sway-icon {
+    position: absolute;
+    top: 41.5%;
+    left: 64.5%;
+    font-size: 1.8rem;
+    z-index: 12;
+    animation: flagWave 2s ease-in-out infinite alternate;
+    transform-origin: bottom left;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+}
+
+@keyframes flagWave {
+    0% { transform: rotate(-8deg); }
+    100% { transform: rotate(12deg); }
+}
+
+/* Splat impact animation when hit */
+.impact-splat {
+    position: absolute;
+    font-family: var(--font-pvz);
+    font-size: 1.6rem;
+    color: #76ff03;
+    text-shadow: 0 0 8px #1b5e20, 0 2px 4px #000;
+    z-index: 25;
+    pointer-events: none;
+    animation: splatPop 0.5s ease-out forwards;
+}
+
+@keyframes splatPop {
+    0% { transform: scale(0.4); opacity: 1; }
+    100% { transform: scale(1.4) translateY(-15px); opacity: 0; }
+}
+
+/* ================== ANIMATED HERO PEASHOOTER (plant1.jpg) ================== */
+.hero-peashooter-actor {
+    position: absolute;
+    bottom: 8%;
+    left: 31%;
+    width: clamp(90px, 9.5vw, 135px);
+    height: auto;
+    z-index: 60;
+    pointer-events: auto;
+    cursor: pointer;
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.65));
+    animation: peashooterSway 2.6s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+    transition: filter 0.2s ease;
+}
+
+.hero-peashooter-actor:hover {
+    filter: drop-shadow(0 12px 20px rgba(118, 255, 3, 0.8)) brightness(1.12);
+}
+
+.hero-peashooter-actor.celebrating {
+    animation: peashooterCelebrate 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) 2;
+}
+
+.intro-peashooter-actor {
+    position: absolute;
+    bottom: 12%;
+    left: 16%;
+    width: clamp(100px, 11vw, 150px);
+    height: auto;
+    z-index: 30;
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.75));
+    animation: peashooterSway 2.8s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+    pointer-events: none;
+}
+
+@keyframes peashooterSway {
+    0% {
+        transform: rotate(-7deg) translateY(0) scale(1, 0.98);
+    }
+    50% {
+        transform: rotate(0deg) translateY(-6px) scale(0.97, 1.03);
+    }
+    100% {
+        transform: rotate(8deg) translateY(0) scale(1.03, 0.97);
+    }
+}
+
+@keyframes peashooterCelebrate {
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.25, 0.8) translateY(12px) rotate(-12deg); }
+    55% { transform: scale(0.9, 1.3) translateY(-30px) rotate(18deg); }
+    80% { transform: scale(1.15, 0.9) translateY(4px) rotate(-6deg); }
+    100% { transform: scale(1) translateY(0) rotate(0deg); }
+}
+
+/* ================== ANIMATED HERO ZOMBIE (zombie1.jpg) ================== */
+.hero-zombie-actor {
+    position: absolute;
+    bottom: 8%;
+    right: 17%;
+    width: clamp(95px, 10vw, 140px);
+    height: auto;
+    z-index: 60;
+    pointer-events: auto;
+    cursor: pointer;
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.65));
+    animation: zombieSway 2.8s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+    transition: filter 0.2s ease;
+}
+
+.hero-zombie-actor:hover {
+    filter: drop-shadow(0 12px 20px rgba(255, 23, 68, 0.8)) brightness(1.1);
+}
+
+.hero-zombie-actor.hurt {
+    animation: zombieHurtKnockback 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: brightness(2) drop-shadow(0 0 25px #ff1744);
+}
+
+.hero-zombie-actor.attacking {
+    animation: zombieLunge 0.8s ease-in-out;
+}
+
+.intro-zombie-actor {
+    position: absolute;
+    bottom: 12%;
+    right: 15%;
+    width: clamp(105px, 11.5vw, 155px);
+    height: auto;
+    z-index: 30;
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.75));
+    animation: zombieSway 3s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+    pointer-events: none;
+}
+
+@keyframes zombieSway {
+    0% {
+        transform: rotate(-6deg) translateY(0) scale(1, 0.98);
+    }
+    50% {
+        transform: rotate(1deg) translateY(-5px) scale(0.98, 1.02);
+    }
+    100% {
+        transform: rotate(7deg) translateY(0) scale(1.02, 0.98);
+    }
+}
+
+@keyframes zombieHurtKnockback {
+    0% { transform: scale(1) translateX(0) rotate(0deg); }
+    30% { transform: scale(0.9) translateX(25px) rotate(15deg); }
+    70% { transform: scale(1.05) translateX(10px) rotate(-5deg); }
+    100% { transform: scale(1) translateX(0) rotate(0deg); }
+}
+
+@keyframes zombieLunge {
+    0% { transform: translateX(0) scale(1); }
+    40% { transform: translateX(-35px) scale(1.15) rotate(-10deg); }
+    100% { transform: translateX(0) scale(1) rotate(0deg); }
+}
+
+/* ================== READY SET PLANT BANNER TRANSITION ================== */
+
+/* Ready... Set... Plant! Transition Banner */
+.ready-banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 120;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.ready-banner-overlay.show {
+    animation: readyBannerSequence 1.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes readyBannerSequence {
+    0% {
+        opacity: 0;
+        transform: scale(0.3) rotate(-8deg);
+    }
+    25% {
+        opacity: 1;
+        transform: scale(1.12) rotate(2deg);
+    }
+    50% {
+        transform: scale(1) rotate(0deg);
+    }
+    80% {
+        opacity: 1;
+        transform: scale(1.02);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.25);
+        filter: blur(4px);
+    }
+}
+
+.ready-banner-text {
+    font-family: var(--font-pvz);
+    font-size: clamp(2.2rem, 4.5vw, 4rem);
+    color: #ffeb3b;
+    text-shadow: 
+        -4px -4px 0 #2e7d32,  
+         4px -4px 0 #2e7d32,
+        -4px  4px 0 #2e7d32,
+         4px  4px 0 #2e7d32,
+         0px  8px 0 #1b5e20,
+         0px 12px 30px rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.75);
+    padding: 1.2rem 3.2rem;
+    border-radius: 40px;
+    border: 4px solid #a5d6a7;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85);
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+/* ================== LAWN NUMBER SELECTION GRID (CHỌN CÂU 1, 2, 3, 4, 5, 6...) ================== */
+.lawn-number-board {
+    position: absolute;
+    top: 6%;
+    left: 27%;
+    width: 46%;
+    height: 88%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: 50;
+    pointer-events: auto;
+    animation: plantBoardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.lawn-select-header {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(62, 39, 35, 0.96) 0%, rgba(39, 20, 6, 0.98) 100%);
+    border: 4px solid #8d6e63;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    padding: 0.8rem 1.4rem;
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.lawn-select-title {
+    font-family: var(--font-pvz);
+    font-size: clamp(1.35rem, 1.9vw, 1.9rem);
+    color: #ffd54f;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    margin-bottom: 4px;
+}
+
+.lawn-select-progress {
+    font-family: var(--font-sub);
+    font-size: clamp(1.05rem, 1.35vw, 1.35rem);
+    font-weight: 700;
+    color: #a5d6a7;
+}
+
+.lawn-number-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    width: 100%;
+    flex: 1;
+    align-content: center;
+}
+
+.lawn-number-card {
+    background: linear-gradient(180deg, #8d6e63 0%, #5d4037 60%, #3e2723 100%);
+    border: 4px solid #ffd54f;
+    border-radius: 20px;
+    aspect-ratio: 1 / 1;
+    max-height: 135px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #271406, 0 10px 20px rgba(0, 0, 0, 0.65);
+    transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.lawn-number-card:hover:not(.completed) {
+    transform: translateY(-6px) scale(1.07);
+    border-color: #fff9c4;
+    background: linear-gradient(180deg, #a1887f 0%, #6d4c41 60%, #4e342e 100%);
+    box-shadow: 0 10px 0 #271406, 0 14px 24px rgba(255, 213, 79, 0.5);
+}
+
+.lawn-number-card:active:not(.completed) {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #271406;
+}
+
+.lawn-number-digit {
+    font-family: var(--font-pvz);
+    font-size: clamp(2.4rem, 3.6vw, 3.6rem);
+    color: #ffeb3b;
+    text-shadow: 
+        -2px -2px 0 #1b5e20,  
+         2px -2px 0 #1b5e20,
+        -2px  2px 0 #1b5e20,
+         2px  2px 0 #1b5e20,
+         0px  4px 0 #000000;
+    line-height: 1;
+}
+
+.lawn-number-sub {
+    font-family: var(--font-sub);
+    font-size: clamp(0.95rem, 1.2vw, 1.25rem);
+    font-weight: 800;
+    color: #ffffff;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Completed state with blooming yellow sunflower */
+.lawn-number-card.completed {
+    background: linear-gradient(180deg, #fbc02d 0%, #f57f17 100%) !important;
+    border-color: #ffe082 !important;
+    box-shadow: 0 6px 0 #e65100, 0 10px 20px rgba(255, 179, 0, 0.6) !important;
+    cursor: default;
+}
+
+.lawn-number-card.completed .lawn-number-digit {
+    display: none;
+}
+
+.lawn-number-card.completed .lawn-number-sub {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: clamp(1rem, 1.25vw, 1.3rem);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.lawn-number-card.completed::before {
+    content: '🌻';
+    font-size: clamp(2.6rem, 4vw, 4rem);
+    filter: drop-shadow(0 0 10px #fff59d);
+    animation: plantDance 1.6s infinite alternate;
+}
+
+.lawn-back-btn {
+    background: linear-gradient(180deg, #78909c 0%, #455a64 100%);
+    border: 2px solid #b0bec5;
+    border-radius: 12px;
+    padding: 0.4rem 1rem;
+    font-family: var(--font-pvz);
+    font-size: 1.05rem;
+    color: white;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.15s ease;
+}
+
+.lawn-back-btn:hover {
+    transform: scale(1.05);
+    background: #607d8b;
+}
+
+/* ================== QUESTIONS PLACED DIRECTLY ON LAWN TILES ================== */
+.lawn-question-board {
+    position: absolute;
+    top: 3%;
+    left: 14%;
+    width: 72%;
+    height: 94%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 50;
+    pointer-events: auto;
+    animation: plantBoardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes plantBoardPop {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Question Header Strip Resting on Grass */
+.lawn-question-plank {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(62, 39, 35, 0.96) 0%, rgba(39, 20, 6, 0.98) 100%);
+    border: 4px solid #8d6e63;
+    border-radius: 20px;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.75),
+        inset 0 0 20px rgba(0, 0, 0, 0.5),
+        0 0 0 2px #271406;
+    padding: 1.1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    margin-bottom: 12px;
+}
+
+.lawn-plank-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+    padding-bottom: 6px;
+}
+
+.lawn-wave-tag {
+    font-family: var(--font-pvz);
+    font-size: clamp(1.15rem, 1.6vw, 1.6rem);
+    color: #ffd54f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lawn-sun-tag {
+    font-family: var(--font-pvz);
+    font-size: clamp(1.15rem, 1.6vw, 1.6rem);
+    color: #fff9c4;
+}
+
+.lawn-question-text {
+    font-family: var(--font-sub);
+    font-size: clamp(1.8rem, 2.7vw, 2.75rem);
+    font-weight: 800;
+    line-height: 1.45;
+    text-align: center;
+    color: #ffffff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+    padding: 8px 1rem;
+    word-break: break-word;
+}
+
+.lawn-question-text .katex {
+    font-size: 1.25em;
+}
+
+/* 4 Answer Cards Planted on Grass Grid - RỘNG GẤP ĐÔI CHIỀU NGANG THOÁNG ĐÃNG */
+.lawn-answers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    flex: 1;
+}
+
+.lawn-answer-card {
+    font-family: var(--font-sub);
+    font-size: clamp(1.65rem, 2.35vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.4;
+    color: #ffffff;
+    background: linear-gradient(180deg, rgba(96, 125, 139, 0.96) 0%, rgba(55, 71, 79, 0.98) 100%);
+    border: 4px solid #b0bec5;
+    border-radius: 20px;
+    padding: 1.3rem 1.8rem;
+    cursor: pointer;
+    box-shadow: 0 7px 0 #1b263b, 0 12px 24px rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    text-align: left;
+    transition: all 0.12s ease;
+    outline: none;
+    word-break: break-word;
+}
+
+.lawn-answer-card .prefix {
+    font-family: var(--font-pvz);
+    color: #ffd54f;
+    font-size: clamp(1.9rem, 2.8vw, 2.8rem);
+    margin-right: 16px;
+    flex-shrink: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.lawn-answer-card .katex {
+    font-size: 1.25em;
+}
+
+.lawn-answer-card:hover:not(:disabled) {
+    transform: translateY(-4px) scale(1.02);
+    background: linear-gradient(180deg, rgba(120, 144, 156, 0.98) 0%, rgba(69, 90, 100, 0.98) 100%);
+    border-color: #ffffff;
+    box-shadow: 0 10px 0 #1b263b, 0 14px 22px rgba(0, 0, 0, 0.65);
+}
+
+.lawn-answer-card:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #1b263b;
+}
+
+.lawn-answer-card.correct {
+    background: linear-gradient(180deg, #66bb6a 0%, #388e3c 60%, #2e7d32 100%) !important;
+    border-color: #a5d6a7 !important;
+    box-shadow: 0 0 24px #4caf50, 0 6px 0 #1b5e20 !important;
+    animation: correctPulse 0.8s infinite alternate;
+}
+
+.lawn-answer-card.wrong {
+    background: linear-gradient(180deg, #ef5350 0%, #d32f2f 60%, #c62828 100%) !important;
+    border-color: #ef9a9a !important;
+    box-shadow: 0 0 24px #f44336, 0 6px 0 #b71c1c !important;
+    animation: shakeCard 0.4s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+/* Success panel on lawn */
+.lawn-success-panel {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    flex: 1;
+    background: linear-gradient(180deg, rgba(46, 125, 50, 0.95) 0%, rgba(27, 94, 32, 0.95) 100%);
+    border: 4px solid #a5d6a7;
+    border-radius: 20px;
+    padding: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    animation: plantBoardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+}
+
+.lawn-success-panel h3 {
+    font-family: var(--font-pvz);
+    font-size: clamp(1.4rem, 2vw, 1.9rem);
+    color: #ffeb3b;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    margin-bottom: 4px;
+}
+
+.lawn-success-panel p {
+    font-family: var(--font-sub);
+    font-size: clamp(1rem, 1.3vw, 1.3rem);
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+.lawn-success-panel .pvz-btn {
+    font-size: clamp(1.1rem, 1.5vw, 1.5rem);
+    padding: 0.6rem 2rem;
+}
+.pvz-top-wave-bar {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    background: linear-gradient(180deg, #5d4037 0%, #3e2723 100%);
+    border: 3px solid #ffe082;
+    border-radius: 20px;
+    padding: 6px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+}
+
+.wave-bar-title {
+    font-family: var(--font-pvz);
+    font-size: 1.2rem;
+    color: #ffeb3b;
+}
+
+.wave-progress-track {
+    width: 180px;
+    height: 16px;
+    background: #212121;
+    border-radius: 10px;
+    border: 2px solid #000;
+    position: relative;
+    overflow: hidden;
+}
+
+.wave-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #43a047, #76ff03);
+    border-radius: 8px;
+    transition: width 0.5s ease;
+}
+
+.wave-flag-icon {
+    font-size: 1.3rem;
+}
