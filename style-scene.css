@@ -710,9 +710,9 @@
     background: linear-gradient(180deg, #78909c 0%, #455a64 100%);
     border: 2px solid #b0bec5;
     border-radius: 12px;
-    padding: 0.3rem 0.8rem;
+    padding: 0.4rem 1rem;
     font-family: var(--font-pvz);
-    font-size: 0.9rem;
+    font-size: 1.05rem;
     color: white;
     cursor: pointer;
     outline: none;
@@ -727,10 +727,10 @@
 /* ================== QUESTIONS PLACED DIRECTLY ON LAWN TILES ================== */
 .lawn-question-board {
     position: absolute;
-    top: 6%;
-    left: 23%;
-    width: 54%;
-    height: 88%;
+    top: 3%;
+    left: 14%;
+    width: 72%;
+    height: 94%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -755,7 +755,7 @@
         0 10px 30px rgba(0, 0, 0, 0.75),
         inset 0 0 20px rgba(0, 0, 0, 0.5),
         0 0 0 2px #271406;
-    padding: 0.9rem 1.6rem;
+    padding: 1.1rem 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -775,7 +775,7 @@
 
 .lawn-wave-tag {
     font-family: var(--font-pvz);
-    font-size: clamp(0.95rem, 1.25vw, 1.25rem);
+    font-size: clamp(1.15rem, 1.6vw, 1.6rem);
     color: #ffd54f;
     display: flex;
     align-items: center;
@@ -784,47 +784,47 @@
 
 .lawn-sun-tag {
     font-family: var(--font-pvz);
-    font-size: clamp(0.95rem, 1.25vw, 1.25rem);
+    font-size: clamp(1.15rem, 1.6vw, 1.6rem);
     color: #fff9c4;
 }
 
 .lawn-question-text {
     font-family: var(--font-sub);
-    font-size: clamp(1.5rem, 2.3vw, 2.25rem);
+    font-size: clamp(1.8rem, 2.7vw, 2.75rem);
     font-weight: 800;
     line-height: 1.45;
     text-align: center;
     color: #ffffff;
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
-    padding: 6px 0.75rem;
+    padding: 8px 1rem;
     word-break: break-word;
 }
 
 .lawn-question-text .katex {
-    font-size: 1.15em;
+    font-size: 1.25em;
 }
 
 /* 4 Answer Cards Planted on Grass Grid - RỘNG GẤP ĐÔI CHIỀU NGANG THOÁNG ĐÃNG */
 .lawn-answers-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    gap: 16px;
     width: 100%;
     flex: 1;
 }
 
 .lawn-answer-card {
     font-family: var(--font-sub);
-    font-size: clamp(1.4rem, 1.95vw, 1.95rem);
+    font-size: clamp(1.65rem, 2.35vw, 2.4rem);
     font-weight: 800;
     line-height: 1.4;
     color: #ffffff;
     background: linear-gradient(180deg, rgba(96, 125, 139, 0.96) 0%, rgba(55, 71, 79, 0.98) 100%);
-    border: 3px solid #b0bec5;
-    border-radius: 18px;
-    padding: 1.1rem 1.5rem;
+    border: 4px solid #b0bec5;
+    border-radius: 20px;
+    padding: 1.3rem 1.8rem;
     cursor: pointer;
-    box-shadow: 0 6px 0 #1b263b, 0 10px 20px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 7px 0 #1b263b, 0 12px 24px rgba(0, 0, 0, 0.55);
     display: flex;
     align-items: center;
     text-align: left;
@@ -836,14 +836,14 @@
 .lawn-answer-card .prefix {
     font-family: var(--font-pvz);
     color: #ffd54f;
-    font-size: clamp(1.6rem, 2.3vw, 2.3rem);
-    margin-right: 14px;
+    font-size: clamp(1.9rem, 2.8vw, 2.8rem);
+    margin-right: 16px;
     flex-shrink: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .lawn-answer-card .katex {
-    font-size: 1.15em;
+    font-size: 1.25em;
 }
 
 .lawn-answer-card:hover:not(:disabled) {

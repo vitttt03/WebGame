@@ -415,8 +415,8 @@ html, body {
 
 .question-wood-board {
     pointer-events: auto;
-    width: 92%;
-    max-width: 940px;
+    width: 96%;
+    max-width: 1100px;
     background: linear-gradient(180deg, rgba(93, 64, 55, 0.95) 0%, rgba(62, 39, 35, 0.96) 100%);
     border: 6px solid #8d6e63;
     border-radius: 28px;
@@ -424,7 +424,7 @@ html, body {
         0 15px 40px rgba(0, 0, 0, 0.75),
         inset 0 0 25px rgba(0, 0, 0, 0.5),
         0 0 0 4px #271406;
-    padding: 2rem 2.5rem;
+    padding: 2.2rem 2.8rem;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -490,13 +490,13 @@ html, body {
 
 .question-title-text {
     font-family: var(--font-sub);
-    font-size: clamp(2rem, 3.2vw, 2.8rem);
+    font-size: clamp(2.3rem, 3.5vw, 3.2rem);
     font-weight: 800;
     line-height: 1.4;
     text-align: center;
     color: #ffffff;
     margin-bottom: 1.8rem;
-    padding: 1.2rem 1.8rem;
+    padding: 1.4rem 2rem;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 18px;
     border: 2px solid rgba(255, 255, 255, 0.2);
@@ -505,26 +505,26 @@ html, body {
 }
 
 .question-title-text .katex {
-    font-size: 1.15em;
+    font-size: 1.25em;
 }
 
 /* ================== ANSWER CARDS ================== */
 .pvz-answers-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.2rem;
+    gap: 1.4rem;
     width: 100%;
 }
 
 .seed-card-btn {
     font-family: var(--font-sub);
-    font-size: clamp(1.5rem, 2.2vw, 2.1rem);
+    font-size: clamp(1.75rem, 2.5vw, 2.5rem);
     font-weight: 800;
     color: #ffffff;
     background: linear-gradient(180deg, #607d8b 0%, #37474f 100%);
-    border: 3px solid #b0bec5;
-    border-radius: 16px;
-    padding: 1.1rem 1.4rem;
+    border: 4px solid #b0bec5;
+    border-radius: 18px;
+    padding: 1.3rem 1.8rem;
     cursor: pointer;
     box-shadow: 0 6px 0 #212121, 0 10px 18px rgba(0, 0, 0, 0.5);
     display: flex;
@@ -537,8 +537,8 @@ html, body {
 .seed-card-btn .prefix {
     font-family: var(--font-pvz);
     color: #ffeb3b;
-    font-size: 2.2rem;
-    margin-right: 1rem;
+    font-size: clamp(2.1rem, 2.8vw, 2.8rem);
+    margin-right: 1.2rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
