@@ -52,16 +52,168 @@ const defaultQuestions = [
 ];
 
 let questions = defaultQuestions;
-try {
-    const saved = localStorage.getItem('pvzGameQuestions');
-    if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            questions = parsed;
+let savedQuestionLists = {};
+let activeQuestionListId = 'default';
+
+function loadSavedQuestionLists() {
+    const rawLists = localStorage.getItem('pvzSavedQuestionLists');
+    const rawActiveId = localStorage.getItem('pvzActiveQuestionListId');
+    
+    if (rawLists) {
+        try {
+            savedQuestionLists = JSON.parse(rawLists);
+        } catch (e) {
+            savedQuestionLists = {};
         }
     }
-} catch (e) {
-    questions = defaultQuestions;
+    
+    if (!savedQuestionLists['default'] || !Array.isArray(savedQuestionLists['default'].questions)) {
+        savedQuestionLists['default'] = {
+            id: 'default',
+            name: "Bộ Mặc Định (Plants vs. Zombies)",
+            questions: [...defaultQuestions]
+        };
+    }
+
+    const legacySaved = localStorage.getItem('pvzGameQuestions');
+    if (legacySaved) {
+        try {
+            const parsedLegacy = JSON.parse(legacySaved);
+            if (Array.isArray(parsedLegacy) && parsedLegacy.length > 0) {
+                if (rawActiveId && savedQuestionLists[rawActiveId]) {
+                    savedQuestionLists[rawActiveId].questions = parsedLegacy;
+                } else {
+                    savedQuestionLists['default'].questions = parsedLegacy;
+                }
+            }
+        } catch (e) {}
+    }
+
+    if (rawActiveId && savedQuestionLists[rawActiveId]) {
+        activeQuestionListId = rawActiveId;
+    } else {
+        activeQuestionListId = 'default';
+    }
+
+loadSavedQuestionLists();
+
+// --- PLAY SESSION PERSISTENCE (F5 REFRESH AUTO-SAVE & RESTORE) ---
+const PVZ_SESSION_KEY = 'pvzActivePlaySession';
+
+function savePvZPlaySession() {
+    const activeScreen = document.querySelector('.screen.active')?.id || 'screen-intro';
+    if (activeScreen === 'screen-intro' || activeScreen === 'screen-admin') {
+        return;
+    }
+
+    const sessionData = {
+        activeScreen: activeScreen,
+        activeQuestionListId: activeQuestionListId,
+        questionsState: questions.map(q => ({
+            id: q.id,
+            completed: !!q.completed,
+            wrongOptions: q._wrongOptions || []
+        })),
+        currentQuestionIndex: currentQuestionIndex,
+        sunScore: sunScore,
+        boardVisible: document.getElementById('lawn-question-board')?.style.display === 'flex'
+    };
+
+    localStorage.setItem(PVZ_SESSION_KEY, JSON.stringify(sessionData));
+}
+
+function clearPvZPlaySession() {
+    localStorage.removeItem(PVZ_SESSION_KEY);
+}
+
+function restorePvZPlaySession() {
+    const rawData = localStorage.getItem(PVZ_SESSION_KEY);
+    if (!rawData) return false;
+
+    try {
+        const session = JSON.parse(rawData);
+        if (!session || !session.activeScreen || session.activeScreen === 'screen-intro') {
+            return false;
+        }
+
+        if (session.activeQuestionListId && savedQuestionLists[session.activeQuestionListId]) {
+            activeQuestionListId = session.activeQuestionListId;
+            questions = [...savedQuestionLists[activeQuestionListId].questions];
+        }
+
+        if (Array.isArray(session.questionsState)) {
+            session.questionsState.forEach((qsState, idx) => {
+                if (questions[idx]) {
+                    questions[idx].completed = !!qsState.completed;
+                    questions[idx]._wrongOptions = Array.isArray(qsState.wrongOptions) ? [...qsState.wrongOptions] : [];
+                }
+            });
+        }
+
+        if (typeof session.sunScore === 'number') sunScore = session.sunScore;
+        if (typeof session.currentQuestionIndex === 'number') currentQuestionIndex = session.currentQuestionIndex;
+        totalMissions = questions.length;
+
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const targetScreen = document.getElementById(session.activeScreen) || document.getElementById('screen-game');
+        if (targetScreen) targetScreen.classList.add('active');
+
+        if (session.activeScreen === 'screen-game') {
+            PvZAudio.startBgm();
+            renderBattlefieldActors();
+            renderNumberGrid();
+
+            const sunCounter = document.getElementById('board-sun-count');
+            if (sunCounter) sunCounter.innerText = sunScore;
+
+            const completedCount = questions.filter(item => item.completed).length;
+            const waveFill = document.getElementById('wave-progress-fill');
+            if (waveFill) waveFill.style.width = `${(completedCount / totalMissions) * 100}%`;
+
+            const waveText = document.getElementById('wave-progress-text');
+            if (waveText) waveText.innerText = `TIẾN ĐỘ: ${completedCount}/${totalMissions}`;
+
+            questions.forEach((q, idx) => {
+                if (q.completed) {
+                    const zActor = document.getElementById(`zombie-actor-${idx}`);
+                    if (zActor) zActor.classList.add('defeated');
+                }
+            });
+
+            if (session.boardVisible && currentQuestionIndex !== null && currentQuestionIndex < questions.length) {
+                openQuestion(currentQuestionIndex);
+                const q = questions[currentQuestionIndex];
+                if (q && q._wrongOptions && q._wrongOptions.length > 0) {
+                    const answerBtns = document.querySelectorAll('.lawn-answer-card');
+                    q._wrongOptions.forEach(optIdx => {
+                        if (answerBtns[optIdx]) {
+                            answerBtns[optIdx].classList.add('wrong');
+                            answerBtns[optIdx].disabled = true;
+                        }
+                    });
+                }
+                if (q && q.completed) {
+                    const clearedPanel = document.getElementById('wave-cleared-panel');
+                    if (clearedPanel) {
+                        const titleEl = document.getElementById('wave-cleared-title');
+                        if (titleEl) titleEl.innerText = `🎉 ĐÃ TIÊU DIỆT ZOMBIE ĐỢT ${currentQuestionIndex + 1}!`;
+                        clearedPanel.style.display = 'flex';
+                    }
+                    document.querySelectorAll('.lawn-answer-card').forEach(b => b.disabled = true);
+                }
+            } else {
+                returnToNumberSelect();
+            }
+        } else if (session.activeScreen === 'screen-victory') {
+            const victoryScreen = document.getElementById('screen-victory');
+            if (victoryScreen) victoryScreen.classList.add('active');
+        }
+
+        return true;
+    } catch (e) {
+        console.warn("Failed to restore PvZ play session:", e);
+        return false;
+    }
 }
 
 // --- AUDIO & MUSIC ENGINE (PvZ Original Theme) ---
@@ -284,6 +436,10 @@ function renderApp() {
                 </div>
             </div>
 
+            <button class="icon-btn" id="top-home-btn" onclick="window.location.href='../index.html'" title="Trở về Menu chọn trò chơi">
+                🏠
+            </button>
+
             <button class="icon-btn" onclick="handleSettingsClick()" title="Cài đặt / Tạm dừng">
                 ⚙️
             </button>
@@ -307,7 +463,7 @@ function renderApp() {
                         ▶ TIẾP TỤC CHƠI
                     </button>
                     <button class="pvz-btn pvz-btn-wood" onclick="exitToMainMenu()">
-                        🚪 THOÁT RA MÀN HÌNH CHÍNH
+                        🚪 VỀ MÀN HÌNH PLAY
                     </button>
                 </div>
             </div>
@@ -466,6 +622,26 @@ function renderApp() {
                     <button class="pvz-btn pvz-btn-wood" style="padding: 0.5rem 1.8rem; font-size: 1.3rem;" onclick="closeAdmin()">Thoát</button>
                 </div>
 
+                <!-- BỘ CÂU HỎI SET MANAGER BAR -->
+                <div class="question-list-manager-box">
+                    <div class="qs-manager-inner">
+                        <div class="qs-select-group">
+                            <span class="qs-label">📋 Chọn Bộ Câu Hỏi:</span>
+                            <select id="question-set-select" class="qs-select" onchange="onSelectQuestionSet(this.value)">
+                                <!-- Dynamically populated -->
+                            </select>
+                        </div>
+                        <div class="qs-actions">
+                            <button type="button" class="qs-btn qs-btn-save" onclick="promptSaveCurrentQuestionSet()" title="Lưu bộ câu hỏi hiện tại">💾 Lưu Bộ Này</button>
+                            <button type="button" class="qs-btn qs-btn-new" onclick="promptCreateNewQuestionSet()" title="Tạo một bộ câu hỏi trống mới">➕ Tạo Bộ Mới</button>
+                            <button type="button" class="qs-btn qs-btn-delete" onclick="deleteCurrentQuestionSet()" title="Xóa bộ câu hỏi đang chọn">🗑️ Xóa Bộ Này</button>
+                            <button type="button" class="qs-btn qs-btn-export" onclick="exportQuestionSetJSON()" title="Tải xuống tệp JSON bộ câu hỏi này">📥 Export JSON</button>
+                            <button type="button" class="qs-btn qs-btn-import" onclick="document.getElementById('import-json-file-input').click()" title="Tải lên tệp JSON bộ câu hỏi">📤 Import JSON</button>
+                            <input type="file" id="import-json-file-input" accept=".json" style="display: none;" onchange="importQuestionSetJSON(event)">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="question-list" id="admin-question-list">
                     <!-- Questions rendered here -->
                 </div>
@@ -616,6 +792,10 @@ function showScreen(screenId) {
     if (target) {
         target.classList.add('active');
     }
+    const topHome = document.getElementById('top-home-btn');
+    if (topHome) {
+        topHome.style.display = (screenId === 'screen-intro') ? 'inline-flex' : 'none';
+    }
 }
 
 // --- GAMEPLAY LOGIC & TRANSITIONS ---
@@ -627,7 +807,11 @@ function startGame() {
     currentQuestionIndex = 0;
     sunScore = 50;
     totalMissions = questions.length;
-    questions.forEach(q => q.completed = false);
+    questions.forEach(q => {
+        q.completed = false;
+        q._wrongOptions = [];
+    });
+    savePvZPlaySession();
 
     // Tự động sinh số lượng Hoa, Cây và Zombie
     renderBattlefieldActors();
@@ -772,6 +956,7 @@ function openQuestion(index) {
     }
 
     loadQuestion(index);
+    savePvZPlaySession();
 }
 
 function returnToNumberSelect() {
@@ -796,6 +981,7 @@ function returnToNumberSelect() {
     }
 
     renderNumberGrid();
+    savePvZPlaySession();
 }
 
 function loadQuestion(index) {
@@ -861,7 +1047,6 @@ function handleAnswer(btnElement, selectedIdx) {
 
         // 1. Cây bắn đậu tương ứng xả đạn liên thanh vào chú Zombie của câu này
         triggerLanePeaBarrage(targetRow, () => {
-            // Khi đạn bắn trúng: Zombie của câu này gục ngã và biến mất
             if (targetZombie) {
                 targetZombie.classList.remove('hurt', 'attacking');
                 void targetZombie.offsetWidth;
@@ -884,6 +1069,8 @@ function handleAnswer(btnElement, selectedIdx) {
         // Cập nhật trạng thái hoàn thành câu
         q.completed = true;
         sunScore += 50;
+        savePvZPlaySession();
+
         const sunCounter = document.getElementById('board-sun-count');
         if (sunCounter) sunCounter.innerText = sunScore;
 
@@ -901,14 +1088,12 @@ function handleAnswer(btnElement, selectedIdx) {
             });
         }
 
-        // Hiện panel hoàn thành đợt
+        // Hiện panel hoàn thành đợt nhưng VẪN GIỮ MÀN HÌNH CÂU HỎI để cô giáo giải thích
         setTimeout(() => {
-            const grid = document.getElementById('answers-grid');
-            if (grid) grid.style.display = 'none';
             const clearedPanel = document.getElementById('wave-cleared-panel');
             if (clearedPanel) {
                 const titleEl = document.getElementById('wave-cleared-title');
-                titleEl.innerText = `🎉 ĐÃ TIÊU DIỆT ZOMBIE ĐỢT ${currentQuestionIndex + 1}!`;
+                if (titleEl) titleEl.innerText = `🎉 ĐÃ TIÊU DIỆT ZOMBIE ĐỢT ${currentQuestionIndex + 1}!`;
                 clearedPanel.style.display = 'flex';
             }
         }, 800);
@@ -916,6 +1101,13 @@ function handleAnswer(btnElement, selectedIdx) {
     } else {
         // === TRẢ LỜI SAI ===
         btnElement.classList.add('wrong');
+        btnElement.disabled = true; // Giữ nguyên màu đỏ và khóa đáp án đã chọn sai
+        if (!q._wrongOptions) q._wrongOptions = [];
+        if (!q._wrongOptions.includes(selectedIdx)) {
+            q._wrongOptions.push(selectedIdx);
+        }
+        savePvZPlaySession();
+
         PvZAudio.playWrong();
         PvZAudio.playZombieGroan();
 
@@ -935,7 +1127,7 @@ function handleAnswer(btnElement, selectedIdx) {
 
         setTimeout(() => {
             if (stamp) stamp.classList.remove('show');
-            btnElement.classList.remove('wrong');
+            // GIỮ NGUYÊN MÀU ĐỎ CHO ĐÁP ÁN SAI, KHÔNG XÓA CLASS WRONG
         }, 1200);
     }
 }
@@ -1058,12 +1250,12 @@ function restartGame() {
 // --- SETTINGS & PAUSE CONTROLLER ---
 function handleSettingsClick() {
     PvZAudio.playClick();
-    const gameScreen = document.getElementById('screen-game');
-    if (gameScreen && gameScreen.classList.contains('active')) {
-        // Đang trong trận đấu -> Mở Menu Tạm dừng (Tiếp tục hoặc Thoát)
+    const introScreen = document.getElementById('screen-intro');
+    const isIntro = introScreen && introScreen.classList.contains('active');
+
+    if (!isIntro) {
         openPauseModal();
     } else {
-        // Đang ở màn hình ngoài -> Yêu cầu nhập đúng tên xác thực: uyen123
         openAuthModal();
     }
 }
@@ -1080,16 +1272,14 @@ function openAuthModal() {
         modal.classList.add('active');
         setTimeout(() => {
             if (input) input.focus();
-        }, 120);
+        }, 100);
     }
 }
 
 function closeAuthModal() {
     PvZAudio.playClick();
     const modal = document.getElementById('auth-modal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
+    if (modal) modal.classList.remove('active');
 }
 
 function submitAdminAuth(e) {
@@ -1138,13 +1328,15 @@ function closePauseModal() {
 function exitToMainMenu() {
     PvZAudio.playClick();
     closePauseModal();
-    currentQuestionIndex = 0;
+    PvZAudio.stopBgm();
+    clearPvZPlaySession();
     showScreen('screen-intro');
 }
 
 // --- ADMIN SYSTEM ---
 function openAdmin() {
     PvZAudio.playClick();
+    renderQuestionSetSelector();
     renderAdminQuestions();
     renderMathToolbar();
     showScreen('screen-admin');
@@ -1457,7 +1649,168 @@ function deleteQuestion(index) {
 }
 
 function saveQuestions() {
+    saveCurrentQuestionsState();
+}
+
+function saveCurrentQuestionsState() {
+    if (!savedQuestionLists[activeQuestionListId]) {
+        savedQuestionLists[activeQuestionListId] = {
+            id: activeQuestionListId,
+            name: "Bộ Câu Hỏi " + new Date().toLocaleDateString('vi-VN'),
+            questions: []
+        };
+    }
+    savedQuestionLists[activeQuestionListId].questions = [...questions];
+    localStorage.setItem('pvzSavedQuestionLists', JSON.stringify(savedQuestionLists));
+    localStorage.setItem('pvzActiveQuestionListId', activeQuestionListId);
     localStorage.setItem('pvzGameQuestions', JSON.stringify(questions));
+}
+
+function renderQuestionSetSelector() {
+    const selectEl = document.getElementById('question-set-select');
+    if (!selectEl) return;
+    
+    selectEl.innerHTML = '';
+    const keys = Object.keys(savedQuestionLists);
+    
+    keys.forEach(key => {
+        const item = savedQuestionLists[key];
+        const option = document.createElement('option');
+        option.value = item.id;
+        const count = item.questions ? item.questions.length : 0;
+        option.innerText = `${item.name} (${count} câu)`;
+        if (item.id === activeQuestionListId) {
+            option.selected = true;
+        }
+        selectEl.appendChild(option);
+    });
+}
+
+function onSelectQuestionSet(listId) {
+    if (!savedQuestionLists[listId]) return;
+    PvZAudio.playClick();
+    activeQuestionListId = listId;
+    questions = [...savedQuestionLists[listId].questions];
+    saveCurrentQuestionsState();
+    cancelEditQuestion();
+    renderAdminQuestions();
+    renderQuestionSetSelector();
+}
+
+function promptSaveCurrentQuestionSet() {
+    PvZAudio.playClick();
+    const currentName = savedQuestionLists[activeQuestionListId] ? savedQuestionLists[activeQuestionListId].name : "Bộ câu hỏi mới";
+    const name = prompt("Nhập tên cho Bộ Câu Hỏi này:", currentName);
+    if (name && name.trim()) {
+        const trimmedName = name.trim();
+        savedQuestionLists[activeQuestionListId].name = trimmedName;
+        savedQuestionLists[activeQuestionListId].questions = [...questions];
+        saveCurrentQuestionsState();
+        renderQuestionSetSelector();
+        PvZAudio.playSun();
+        alert(`🎉 Đã lưu bộ câu hỏi: "${trimmedName}"!`);
+    }
+}
+
+function promptCreateNewQuestionSet() {
+    PvZAudio.playClick();
+    const name = prompt("Nhập tên Bộ Câu Hỏi Mới:", "Bộ Câu Hỏi Mới " + (Object.keys(savedQuestionLists).length + 1));
+    if (name && name.trim()) {
+        const trimmedName = name.trim();
+        const newId = 'set_' + Date.now();
+        savedQuestionLists[newId] = {
+            id: newId,
+            name: trimmedName,
+            questions: []
+        };
+        activeQuestionListId = newId;
+        questions = [];
+        saveCurrentQuestionsState();
+        cancelEditQuestion();
+        renderAdminQuestions();
+        renderQuestionSetSelector();
+        PvZAudio.playSun();
+        alert(`✨ Đã tạo bộ câu hỏi mới: "${trimmedName}". Hãy thêm câu hỏi vào bộ này!`);
+    }
+}
+
+function deleteCurrentQuestionSet() {
+    PvZAudio.playClick();
+    const keys = Object.keys(savedQuestionLists);
+    if (keys.length <= 1) {
+        alert("⚠️ Bạn phải giữ lại ít nhất 1 Bộ Câu Hỏi!");
+        return;
+    }
+    
+    const currentName = savedQuestionLists[activeQuestionListId] ? savedQuestionLists[activeQuestionListId].name : "Bộ này";
+    if (confirm(`Bạn có chắc chắn muốn xóa bộ câu hỏi "${currentName}"?`)) {
+        delete savedQuestionLists[activeQuestionListId];
+        const remainingKeys = Object.keys(savedQuestionLists);
+        activeQuestionListId = remainingKeys[0];
+        questions = [...savedQuestionLists[activeQuestionListId].questions];
+        saveCurrentQuestionsState();
+        cancelEditQuestion();
+        renderAdminQuestions();
+        renderQuestionSetSelector();
+        alert("🗑️ Đã xóa bộ câu hỏi thành công.");
+    }
+}
+
+function exportQuestionSetJSON() {
+    PvZAudio.playClick();
+    const currentSet = savedQuestionLists[activeQuestionListId] || { name: "Bo_Cau_Hoi", questions: questions };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentSet, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    const safeFileName = (currentSet.name || "bo_cau_hoi").replace(/[^a-zA-Z0-9_\-\u00C0-\u024F]/g, "_") + ".json";
+    downloadAnchor.setAttribute("download", safeFileName);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+function importQuestionSetJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const content = e.target.result;
+            const parsed = JSON.parse(content);
+            let importedQuestions = [];
+            let importedName = "Bộ Import " + new Date().toLocaleDateString('vi-VN');
+            
+            if (Array.isArray(parsed)) {
+                importedQuestions = parsed;
+            } else if (parsed && Array.isArray(parsed.questions)) {
+                importedQuestions = parsed.questions;
+                if (parsed.name) importedName = parsed.name;
+            } else {
+                alert("⚠️ Định dạng tệp JSON không hợp lệ!");
+                return;
+            }
+
+            const newId = 'set_imported_' + Date.now();
+            savedQuestionLists[newId] = {
+                id: newId,
+                name: importedName,
+                questions: importedQuestions
+            };
+            activeQuestionListId = newId;
+            questions = [...importedQuestions];
+            saveCurrentQuestionsState();
+            cancelEditQuestion();
+            renderAdminQuestions();
+            renderQuestionSetSelector();
+            PvZAudio.playSun();
+            alert(`📥 Đã nhập thành công bộ câu hỏi: "${importedName}" (${importedQuestions.length} câu)!`);
+        } catch (err) {
+            alert("⚠️ Lỗi đọc tệp JSON: " + err.message);
+        }
+        event.target.value = '';
+    };
+    reader.readAsText(file);
 }
 
 // Auto-remove light / white / checkerboard backgrounds (including enclosed inner-leg spaces)
@@ -1612,3 +1965,6 @@ function processTransparentSprites() {
 renderApp();
 renderBattlefieldActors();
 processTransparentSprites();
+if (!restorePvZPlaySession()) {
+    showScreen('screen-intro');
+}
