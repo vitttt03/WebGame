@@ -409,29 +409,55 @@ function showStartScreen() {
     }
 }
 
+let rescueSavedQuestionLists = {};
+let rescueActiveListId = 'default';
+
 function loadSettingsAndQuestions() {
-    // Load question count setting (default 4)
     const savedCount = localStorage.getItem('rescueGameActiveCount_v1');
     if (savedCount) {
         activeCharCount = parseInt(savedCount) || 4;
     }
 
-    // Load question bank from LocalStorage
-    const savedQ = localStorage.getItem('rescueGameQuestions_v1');
-    if (savedQ) {
+    const rawLists = localStorage.getItem('rescueSavedQuestionLists');
+    const rawActiveId = localStorage.getItem('rescueActiveQuestionListId');
+    
+    if (rawLists) {
         try {
-            const parsed = JSON.parse(savedQ);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                questionBank = parsed;
-            } else {
-                questionBank = [...DEFAULT_QUESTIONS];
-            }
+            rescueSavedQuestionLists = JSON.parse(rawLists);
         } catch (e) {
-            questionBank = [...DEFAULT_QUESTIONS];
+            rescueSavedQuestionLists = {};
         }
-    } else {
-        questionBank = [...DEFAULT_QUESTIONS];
     }
+    
+    if (!rescueSavedQuestionLists['default'] || !Array.isArray(rescueSavedQuestionLists['default'].questions)) {
+        rescueSavedQuestionLists['default'] = {
+            id: 'default',
+            name: "Bộ Mặc Định (Nhiệm Vụ Giải Cứu)",
+            questions: typeof DEFAULT_QUESTIONS !== 'undefined' ? [...DEFAULT_QUESTIONS] : []
+        };
+    }
+
+    const legacySaved = localStorage.getItem('rescueGameQuestions_v1');
+    if (legacySaved) {
+        try {
+            const parsedLegacy = JSON.parse(legacySaved);
+            if (Array.isArray(parsedLegacy) && parsedLegacy.length > 0) {
+                if (rawActiveId && rescueSavedQuestionLists[rawActiveId]) {
+                    rescueSavedQuestionLists[rawActiveId].questions = parsedLegacy;
+                } else {
+                    rescueSavedQuestionLists['default'].questions = parsedLegacy;
+                }
+            }
+        } catch (e) {}
+    }
+
+    if (rawActiveId && rescueSavedQuestionLists[rawActiveId]) {
+        rescueActiveListId = rawActiveId;
+    } else {
+        rescueActiveListId = 'default';
+    }
+
+    questionBank = [...rescueSavedQuestionLists[rescueActiveListId].questions];
 
     const selectEl = document.getElementById('setting-char-count');
     if (selectEl) {
@@ -440,8 +466,102 @@ function loadSettingsAndQuestions() {
 }
 
 function saveQuestionsToStorage() {
+    if (!rescueSavedQuestionLists[rescueActiveListId]) {
+        rescueSavedQuestionLists[rescueActiveListId] = {
+            id: rescueActiveListId,
+            name: "Bộ Câu Hỏi " + new Date().toLocaleDateString('vi-VN'),
+            questions: []
+        };
+    }
+    rescueSavedQuestionLists[rescueActiveListId].questions = [...questionBank];
+    localStorage.setItem('rescueSavedQuestionLists', JSON.stringify(rescueSavedQuestionLists));
+    localStorage.setItem('rescueActiveQuestionListId', rescueActiveListId);
     localStorage.setItem('rescueGameQuestions_v1', JSON.stringify(questionBank));
     localStorage.setItem('rescueGameActiveCount_v1', activeCharCount.toString());
+}
+
+function renderRescueQuestionSetSelector() {
+    const selectEl = document.getElementById('rescue-question-set-select');
+    if (!selectEl) return;
+    
+    selectEl.innerHTML = '';
+    const keys = Object.keys(rescueSavedQuestionLists);
+    
+    keys.forEach(key => {
+        const item = rescueSavedQuestionLists[key];
+        const option = document.createElement('option');
+        option.value = item.id;
+        const count = item.questions ? item.questions.length : 0;
+        option.innerText = `${item.name} (${count} câu)`;
+        if (item.id === rescueActiveListId) {
+            option.selected = true;
+        }
+        selectEl.appendChild(option);
+    });
+}
+
+function onSelectRescueQuestionSet(listId) {
+    if (!rescueSavedQuestionLists[listId]) return;
+    rescueActiveListId = listId;
+    questionBank = [...rescueSavedQuestionLists[listId].questions];
+    saveQuestionsToStorage();
+    renderAdminQuestionsList();
+    renderRescueQuestionSetSelector();
+    initGameScene();
+}
+
+function promptSaveRescueQuestionSet() {
+    const currentName = rescueSavedQuestionLists[rescueActiveListId] ? rescueSavedQuestionLists[rescueActiveListId].name : "Bộ câu hỏi mới";
+    const name = prompt("Nhập tên cho Bộ Câu Hỏi này:", currentName);
+    if (name && name.trim()) {
+        const trimmedName = name.trim();
+        rescueSavedQuestionLists[rescueActiveListId].name = trimmedName;
+        rescueSavedQuestionLists[rescueActiveListId].questions = [...questionBank];
+        saveQuestionsToStorage();
+        renderRescueQuestionSetSelector();
+        alert(`🎉 Đã lưu bộ câu hỏi: "${trimmedName}"!`);
+    }
+}
+
+function promptCreateNewRescueQuestionSet() {
+    const name = prompt("Nhập tên Bộ Câu Hỏi Mới:", "Bộ Câu Hỏi Mới " + (Object.keys(rescueSavedQuestionLists).length + 1));
+    if (name && name.trim()) {
+        const trimmedName = name.trim();
+        const newId = 'set_' + Date.now();
+        rescueSavedQuestionLists[newId] = {
+            id: newId,
+            name: trimmedName,
+            questions: []
+        };
+        rescueActiveListId = newId;
+        questionBank = [];
+        saveQuestionsToStorage();
+        renderAdminQuestionsList();
+        renderRescueQuestionSetSelector();
+        initGameScene();
+        alert(`✨ Đã tạo bộ câu hỏi mới: "${trimmedName}". Hãy thêm câu hỏi vào bộ này!`);
+    }
+}
+
+function deleteRescueQuestionSet() {
+    const keys = Object.keys(rescueSavedQuestionLists);
+    if (keys.length <= 1) {
+        alert("⚠️ Bạn phải giữ lại ít nhất 1 Bộ Câu Hỏi!");
+        return;
+    }
+    
+    const currentName = rescueSavedQuestionLists[rescueActiveListId] ? rescueSavedQuestionLists[rescueActiveListId].name : "Bộ này";
+    if (confirm(`Bạn có chắc chắn muốn xóa bộ câu hỏi "${currentName}"?`)) {
+        delete rescueSavedQuestionLists[rescueActiveListId];
+        const remainingKeys = Object.keys(rescueSavedQuestionLists);
+        rescueActiveListId = remainingKeys[0];
+        questionBank = [...rescueSavedQuestionLists[rescueActiveListId].questions];
+        saveQuestionsToStorage();
+        renderAdminQuestionsList();
+        renderRescueQuestionSetSelector();
+        initGameScene();
+        alert("🗑️ Đã xóa bộ câu hỏi thành công.");
+    }
 }
 
 // --- GAME SCENE RENDERING ---
@@ -569,6 +689,10 @@ function openQuestionModal(qId) {
         ]
     });
 
+    // Remove any previous continue button
+    const oldBtn = document.getElementById('btn-rescue-continue');
+    if (oldBtn) oldBtn.remove();
+
     // Show modal
     document.getElementById('question-modal').classList.add('active');
 }
@@ -580,7 +704,7 @@ function closeQuestionModal() {
 
 function handleSelectAnswer(optIdx, btnEl) {
     const q = activeQuestions.find(item => item.id === currentOpenQId);
-    if (!q || q.rescued) return;
+    if (!q || q.rescued || btnEl.disabled) return;
 
     const toast = document.getElementById('modal-status-toast');
 
@@ -588,6 +712,7 @@ function handleSelectAnswer(optIdx, btnEl) {
         // ✅ TRẢ LỜI ĐÚNG!
         playSound('correct');
         btnEl.classList.add('correct');
+        document.querySelectorAll('#modal-options-grid .btn-opt').forEach(b => b.disabled = true);
 
         if (toast) {
             toast.className = 'modal-status-toast correct';
@@ -598,16 +723,25 @@ function handleSelectAnswer(optIdx, btnEl) {
         rescuedCount++;
         document.getElementById('rescued-count').innerText = rescuedCount.toString();
 
-        // Close modal after 1.2s and trigger scene rescue animation
-        setTimeout(() => {
-            closeQuestionModal();
-            triggerRescueAnimation(q);
-        }, 1200);
+        // Hiện nút "XONG - TIẾP TỤC GIẢI CỨU" để cô giáo giải thích bài học trước khi quay lại màn game
+        const modalBody = document.querySelector('#question-modal .modal-body') || document.getElementById('question-modal');
+        if (modalBody && !document.getElementById('btn-rescue-continue')) {
+            const btn = document.createElement('button');
+            btn.id = 'btn-rescue-continue';
+            btn.style.cssText = "margin: 0.8rem auto 0 auto; padding: 0.45rem 1.2rem; font-size: 1.05rem; background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; border: 2px solid #86efac; border-radius: 10px; font-weight: bold; cursor: pointer; display: block; width: fit-content; box-shadow: 0 3px 10px rgba(34, 197, 94, 0.4); font-family: inherit;";
+            btn.innerHTML = '⏩ XONG - HOÀN THÀNH & TIẾP TỤC GIẢI CỨU ➔';
+            btn.onclick = () => {
+                closeQuestionModal();
+                triggerRescueAnimation(q);
+            };
+            modalBody.appendChild(btn);
+        }
 
     } else {
         // ❌ TRẢ LỜI SAI!
         playSound('wrong');
         btnEl.classList.add('wrong');
+        btnEl.disabled = true; // Giữ nguyên màu đỏ và khóa đáp án đã chọn sai
 
         if (toast) {
             toast.className = 'modal-status-toast wrong';
@@ -797,6 +931,7 @@ function submitAdminAuth(e) {
 }
 
 function openAdminModal() {
+    renderRescueQuestionSetSelector();
     renderAdminQuestionsList();
     document.getElementById('admin-modal').classList.add('active');
 }

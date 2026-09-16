@@ -385,3 +385,101 @@
     border-color: #ff6f00;
     box-shadow: 0 4px 0 #ff8f00, 0 6px 12px rgba(255, 179, 0, 0.5);
 }
+
+/* =========================================================
+   QUESTION LIST SET MANAGER BAR
+   ========================================================= */
+.question-list-manager-box {
+    background: rgba(30, 20, 15, 0.85);
+    border: 2px solid #a1887f;
+    border-radius: 16px;
+    padding: 1.2rem;
+    margin-bottom: 1.8rem;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5), 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.qs-manager-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.qs-select-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 280px;
+}
+
+.qs-label {
+    font-weight: bold;
+    color: #ffd54f;
+    white-space: nowrap;
+    font-size: 1.1rem;
+    font-family: inherit;
+}
+
+.qs-select {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    border: 2px solid #8d6e63;
+    background: #271406;
+    color: #ffffff;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.qs-select:focus {
+    border-color: #ffd54f;
+    box-shadow: 0 0 10px rgba(255, 213, 79, 0.4);
+}
+
+.qs-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.qs-btn {
+    padding: 0.45rem 0.95rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    color: #ffffff;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.qs-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4);
+}
+
+.qs-btn:active {
+    transform: translateY(1px);
+}
+
+.qs-btn-save { background: #2e7d32; }
+.qs-btn-save:hover { background: #388e3c; }
+
+.qs-btn-new { background: #1565c0; }
+.qs-btn-new:hover { background: #1976d2; }
+
+.qs-btn-delete { background: #c62828; }
+.qs-btn-delete:hover { background: #d32f2f; }
+
+.qs-btn-export { background: #6a1b9a; }
+.qs-btn-export:hover { background: #7b1fa2; }
+
+.qs-btn-import { background: #e65100; }
+.qs-btn-import:hover { background: #f57c00; }

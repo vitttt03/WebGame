@@ -872,42 +872,59 @@
     animation: shakeCard 0.4s cubic-bezier(.36, .07, .19, .97) both;
 }
 
-/* Success panel on lawn */
+.lawn-answer-card.wrong:disabled {
+    background: linear-gradient(180deg, #ef5350 0%, #d32f2f 60%, #c62828 100%) !important;
+    border-color: #ef9a9a !important;
+    color: #ffffff !important;
+    opacity: 0.9 !important;
+    cursor: not-allowed !important;
+    box-shadow: 0 0 20px rgba(239, 83, 80, 0.7), 0 4px 0 #b71c1c !important;
+}
+
+.lawn-answer-card.correct:disabled {
+    background: linear-gradient(180deg, #66bb6a 0%, #388e3c 60%, #2e7d32 100%) !important;
+    border-color: #a5d6a7 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    box-shadow: 0 0 24px #4caf50, 0 6px 0 #1b5e20 !important;
+}
+
+/* Success panel on lawn (Compact size) */
 .lawn-success-panel {
     display: none;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    flex: 1;
-    background: linear-gradient(180deg, rgba(46, 125, 50, 0.95) 0%, rgba(27, 94, 32, 0.95) 100%);
-    border: 4px solid #a5d6a7;
-    border-radius: 20px;
-    padding: 1rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-    animation: plantBoardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    justify-content: space-between;
+    width: auto;
+    max-width: 90%;
+    margin: 0.6rem auto 0 auto;
+    background: linear-gradient(180deg, rgba(34, 197, 94, 0.95) 0%, rgba(21, 128, 61, 0.95) 100%);
+    border: 2px solid #86efac;
+    border-radius: 12px;
+    padding: 0.4rem 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: plantBoardPop 0.3s ease;
     text-align: center;
+    gap: 12px;
 }
 
 .lawn-success-panel h3 {
     font-family: var(--font-pvz);
-    font-size: clamp(1.4rem, 2vw, 1.9rem);
+    font-size: 1.1rem;
     color: #ffeb3b;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-    margin-bottom: 4px;
+    margin: 0;
 }
 
 .lawn-success-panel p {
-    font-family: var(--font-sub);
-    font-size: clamp(1rem, 1.3vw, 1.3rem);
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 12px;
+    display: none;
 }
 
 .lawn-success-panel .pvz-btn {
-    font-size: clamp(1.1rem, 1.5vw, 1.5rem);
-    padding: 0.6rem 2rem;
+    font-size: 1rem !important;
+    padding: 0.35rem 1rem !important;
+    border-radius: 8px !important;
+    white-space: nowrap;
 }
 .pvz-top-wave-bar {
     position: absolute;

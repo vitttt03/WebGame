@@ -1,7 +1,7 @@
 /* GAME 2: VOLCANO ROCK CLIMB COMPETITION - STYLESHEET */
 :root {
-    --font-pvz: 'Luckiest Guy', 'Fredoka', cursive, sans-serif;
-    --font-sub: 'Outfit', 'Fredoka', sans-serif;
+    --font-pvz: 'Times New Roman', Times, serif;
+    --font-sub: 'Times New Roman', Times, serif;
     --red-team-color: #ff3d00;
     --red-team-bg: linear-gradient(135deg, #d50000, #ff6e40);
     --blue-team-color: #29b6f6;

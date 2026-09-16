@@ -161,6 +161,23 @@
             </div>
 
             <div class="admin-body">
+                <!-- BỘ CÂU HỎI SET MANAGER BAR -->
+                <div class="question-list-manager-box" style="background: rgba(15, 23, 42, 0.85); border: 2px solid #38bdf8; border-radius: 14px; padding: 1rem; margin-bottom: 1.2rem;">
+                    <div class="qs-manager-inner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div class="qs-select-group" style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 280px;">
+                            <span class="qs-label" style="font-weight: bold; color: #38bdf8; white-space: nowrap; font-size: 1.05rem;">📋 Chọn Bộ Câu Hỏi:</span>
+                            <select id="rescue-question-set-select" class="qs-select" onchange="onSelectRescueQuestionSet(this.value)" style="flex: 1; padding: 0.5rem 0.9rem; border-radius: 8px; border: 1px solid #0288d1; background: #0f172a; color: #ffffff; font-size: 0.95rem; font-family: inherit;">
+                                <!-- Dynamically populated -->
+                            </select>
+                        </div>
+                        <div class="qs-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="qs-btn qs-btn-save" onclick="promptSaveRescueQuestionSet()" style="background: #2e7d32; color: #fff; padding: 0.4rem 0.85rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">💾 Lưu Bộ Này</button>
+                            <button type="button" class="qs-btn qs-btn-new" onclick="promptCreateNewRescueQuestionSet()" style="background: #1565c0; color: #fff; padding: 0.4rem 0.85rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">➕ Tạo Bộ Mới</button>
+                            <button type="button" class="qs-btn qs-btn-delete" onclick="deleteRescueQuestionSet()" style="background: #c62828; color: #fff; padding: 0.4rem 0.85rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">🗑️ Xóa Bộ Này</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- TOP SETTINGS PANEL -->
                 <div class="admin-settings-bar">
                     <div class="setting-item">

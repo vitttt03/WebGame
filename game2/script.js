@@ -177,18 +177,204 @@ let currentTurnTeam = 'red'; // 'red' or 'blue'
 let activeQuestionIndex = null;
 let isGameOver = false;
 
-// Load Saved Questions
+let volcanoSavedQuestionLists = {};
+let volcanoActiveListId = 'default';
+
 function loadQuestionBank() {
-    const saved = localStorage.getItem('volcanoGameQuestions');
-    if (saved) {
+    const rawLists = localStorage.getItem('volcanoSavedQuestionLists');
+    const rawActiveId = localStorage.getItem('volcanoActiveQuestionListId');
+    
+    if (rawLists) {
         try {
-            questions = JSON.parse(saved);
+            volcanoSavedQuestionLists = JSON.parse(rawLists);
         } catch (e) {
-            questions = defaultVolcanoQuestions;
+            volcanoSavedQuestionLists = {};
         }
-    } else {
-        questions = defaultVolcanoQuestions;
     }
+    
+    if (!volcanoSavedQuestionLists['default'] || !Array.isArray(volcanoSavedQuestionLists['default'].questions)) {
+        volcanoSavedQuestionLists['default'] = {
+            id: 'default',
+            name: "Bộ Mặc Định (Leo Bậc Đá Núi Lửa)",
+            questions: typeof defaultVolcanoQuestions !== 'undefined' ? [...defaultVolcanoQuestions] : []
+        };
+    }
+
+    const legacySaved = localStorage.getItem('volcanoGameQuestions');
+    if (legacySaved) {
+        try {
+            const parsedLegacy = JSON.parse(legacySaved);
+            if (Array.isArray(parsedLegacy) && parsedLegacy.length > 0) {
+                if (rawActiveId && volcanoSavedQuestionLists[rawActiveId]) {
+                    volcanoSavedQuestionLists[rawActiveId].questions = parsedLegacy;
+                } else {
+                    volcanoSavedQuestionLists['default'].questions = parsedLegacy;
+                }
+            }
+        } catch (e) {}
+    }
+
+    if (rawActiveId && volcanoSavedQuestionLists[rawActiveId]) {
+        volcanoActiveListId = rawActiveId;
+    } else {
+        volcanoActiveListId = 'default';
+    }
+
+    questions = [...volcanoSavedQuestionLists[volcanoActiveListId].questions];
+}
+
+function saveVolcanoCurrentQuestionsState() {
+    if (!volcanoSavedQuestionLists[volcanoActiveListId]) {
+        volcanoSavedQuestionLists[volcanoActiveListId] = {
+            id: volcanoActiveListId,
+            name: "Bộ Câu Hỏi " + new Date().toLocaleDateString('vi-VN'),
+            questions: []
+        };
+    }
+    volcanoSavedQuestionLists[volcanoActiveListId].questions = [...questions];
+    localStorage.setItem('volcanoSavedQuestionLists', JSON.stringify(volcanoSavedQuestionLists));
+    localStorage.setItem('volcanoActiveQuestionListId', volcanoActiveListId);
+    localStorage.setItem('volcanoGameQuestions', JSON.stringify(questions));
+}
+
+function renderVolcanoQuestionSetSelector() {
+    const selectEl = document.getElementById('volcano-question-set-select');
+    if (!selectEl) return;
+    
+    selectEl.innerHTML = '';
+    const keys = Object.keys(volcanoSavedQuestionLists);
+    
+    keys.forEach(key => {
+        const item = volcanoSavedQuestionLists[key];
+        const option = document.createElement('option');
+        option.value = item.id;
+        const count = item.questions ? item.questions.length : 0;
+        option.innerText = `${item.name} (${count} câu)`;
+        if (item.id === volcanoActiveListId) {
+            option.selected = true;
+        }
+        selectEl.appendChild(option);
+    });
+}
+
+function onSelectVolcanoQuestionSet(listId) {
+    if (!volcanoSavedQuestionLists[listId]) return;
+    playHopSound();
+    volcanoActiveListId = listId;
+    questions = [...volcanoSavedQuestionLists[listId].questions];
+    saveVolcanoCurrentQuestionsState();
+    renderAdminQuestions();
+    renderVolcanoQuestionSetSelector();
+}
+
+function promptSaveVolcanoQuestionSet() {
+    playHopSound();
+    const currentName = volcanoSavedQuestionLists[volcanoActiveListId] ? volcanoSavedQuestionLists[volcanoActiveListId].name : "Bộ câu hỏi mới";
+    const name = prompt("Nhập tên cho Bộ Câu Hỏi này:", currentName);
+    if (name && name.trim()) {
+        const trimmedName = name.trim();
+        volcanoSavedQuestionLists[volcanoActiveListId].name = trimmedName;
+        volcanoSavedQuestionLists[volcanoActiveListId].questions = [...questions];
+        saveVolcanoCurrentQuestionsState();
+        renderVolcanoQuestionSetSelector();
+        alert(`🎉 Đã lưu bộ câu hỏi: "${trimmedName}"!`);
+    }
+}
+
+function promptCreateNewVolcanoQuestionSet() {
+    playHopSound();
+    const name = prompt("Nhập tên Bộ Câu Hỏi Mới:", "Bộ Câu Hỏi Mới " + (Object.keys(volcanoSavedQuestionLists).length + 1));
+    if (name && name.trim()) {
+        const trimmedName = name.trim();
+        const newId = 'set_' + Date.now();
+        volcanoSavedQuestionLists[newId] = {
+            id: newId,
+            name: trimmedName,
+            questions: []
+        };
+        volcanoActiveListId = newId;
+        questions = [];
+        saveVolcanoCurrentQuestionsState();
+        renderAdminQuestions();
+        renderVolcanoQuestionSetSelector();
+        alert(`✨ Đã tạo bộ câu hỏi mới: "${trimmedName}". Hãy thêm câu hỏi vào bộ này!`);
+    }
+}
+
+function deleteVolcanoQuestionSet() {
+    playHopSound();
+    const keys = Object.keys(volcanoSavedQuestionLists);
+    if (keys.length <= 1) {
+        alert("⚠️ Bạn phải giữ lại ít nhất 1 Bộ Câu Hỏi!");
+        return;
+    }
+    
+    const currentName = volcanoSavedQuestionLists[volcanoActiveListId] ? volcanoSavedQuestionLists[volcanoActiveListId].name : "Bộ này";
+    if (confirm(`Bạn có chắc chắn muốn xóa bộ câu hỏi "${currentName}"?`)) {
+        delete volcanoSavedQuestionLists[volcanoActiveListId];
+        const remainingKeys = Object.keys(volcanoSavedQuestionLists);
+        volcanoActiveListId = remainingKeys[0];
+        questions = [...volcanoSavedQuestionLists[volcanoActiveListId].questions];
+        saveVolcanoCurrentQuestionsState();
+        renderAdminQuestions();
+        renderVolcanoQuestionSetSelector();
+        alert("🗑️ Đã xóa bộ câu hỏi thành công.");
+    }
+}
+
+function exportVolcanoQuestionSetJSON() {
+    playHopSound();
+    const currentSet = volcanoSavedQuestionLists[volcanoActiveListId] || { name: "Bo_Cau_Hoi_Nui_Lua", questions: questions };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentSet, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    const safeFileName = (currentSet.name || "bo_cau_hoi_nui_lua").replace(/[^a-zA-Z0-9_\-\u00C0-\u024F]/g, "_") + ".json";
+    downloadAnchor.setAttribute("download", safeFileName);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+function importVolcanoQuestionSetJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const content = e.target.result;
+            const parsed = JSON.parse(content);
+            let importedQuestions = [];
+            let importedName = "Bộ Import " + new Date().toLocaleDateString('vi-VN');
+            
+            if (Array.isArray(parsed)) {
+                importedQuestions = parsed;
+            } else if (parsed && Array.isArray(parsed.questions)) {
+                importedQuestions = parsed.questions;
+                if (parsed.name) importedName = parsed.name;
+            } else {
+                alert("⚠️ Định dạng tệp JSON không hợp lệ!");
+                return;
+            }
+
+            const newId = 'set_imported_' + Date.now();
+            volcanoSavedQuestionLists[newId] = {
+                id: newId,
+                name: importedName,
+                questions: importedQuestions
+            };
+            volcanoActiveListId = newId;
+            questions = [...importedQuestions];
+            saveVolcanoCurrentQuestionsState();
+            renderAdminQuestions();
+            renderVolcanoQuestionSetSelector();
+            alert(`📥 Đã nhập thành công bộ câu hỏi: "${importedName}" (${importedQuestions.length} câu)!`);
+        } catch (err) {
+            alert("⚠️ Lỗi đọc tệp JSON: " + err.message);
+        }
+        event.target.value = '';
+    };
+    reader.readAsText(file);
 }
 
 // Fullscreen Toggle (Key F)
@@ -240,6 +426,11 @@ function showScreen(screenId) {
     const topHome = document.getElementById('top-home-btn');
     if (topHome) {
         topHome.style.display = (screenId === 'screen-config') ? 'inline-flex' : 'none';
+    }
+
+    if (screenId === 'screen-admin') {
+        renderVolcanoQuestionSetSelector();
+        renderAdminQuestions();
     }
 }
 
@@ -417,6 +608,26 @@ function renderApp() {
                 </div>
                 <p style="color: #cbd5e1; font-size: 1.1rem; margin-bottom: 1.5rem;">Danh sách câu hỏi được lưu tự động trên trình duyệt.</p>
                 
+                <!-- BỘ CÂU HỎI SET MANAGER BAR -->
+                <div class="question-list-manager-box" style="background: rgba(15, 23, 42, 0.85); border: 2px solid #38bdf8; border-radius: 16px; padding: 1.2rem; margin-bottom: 1.8rem;">
+                    <div class="qs-manager-inner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div class="qs-select-group" style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 280px;">
+                            <span class="qs-label" style="font-weight: bold; color: #38bdf8; white-space: nowrap; font-size: 1.1rem;">📋 Chọn Bộ Câu Hỏi:</span>
+                            <select id="volcano-question-set-select" class="qs-select" onchange="onSelectVolcanoQuestionSet(this.value)" style="flex: 1; padding: 0.6rem 1rem; border-radius: 10px; border: 2px solid #0288d1; background: #0f172a; color: #ffffff; font-size: 1rem; font-family: inherit;">
+                                <!-- Dynamically populated -->
+                            </select>
+                        </div>
+                        <div class="qs-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" class="qs-btn qs-btn-save" onclick="promptSaveVolcanoQuestionSet()" style="background: #2e7d32; color: #fff; padding: 0.45rem 0.95rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">💾 Lưu Bộ Này</button>
+                            <button type="button" class="qs-btn qs-btn-new" onclick="promptCreateNewVolcanoQuestionSet()" style="background: #1565c0; color: #fff; padding: 0.45rem 0.95rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">➕ Tạo Bộ Mới</button>
+                            <button type="button" class="qs-btn qs-btn-delete" onclick="deleteVolcanoQuestionSet()" style="background: #c62828; color: #fff; padding: 0.45rem 0.95rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">🗑️ Xóa Bộ Này</button>
+                            <button type="button" class="qs-btn qs-btn-export" onclick="exportVolcanoQuestionSetJSON()" style="background: #6a1b9a; color: #fff; padding: 0.45rem 0.95rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">📥 Export JSON</button>
+                            <button type="button" class="qs-btn qs-btn-import" onclick="document.getElementById('import-volcano-json-file-input').click()" style="background: #e65100; color: #fff; padding: 0.45rem 0.95rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">📤 Import JSON</button>
+                            <input type="file" id="import-volcano-json-file-input" accept=".json" style="display: none;" onchange="importVolcanoQuestionSetJSON(event)">
+                        </div>
+                    </div>
+                </div>
+
                 <div id="admin-question-list" style="display: flex; flex-direction: column; gap: 1rem;">
                     <!-- Rendered by JS -->
                 </div>
@@ -606,6 +817,9 @@ function openQuestionModal(index) {
         });
     }
 
+    const oldBtn = document.getElementById('btn-volcano-continue');
+    if (oldBtn) oldBtn.remove();
+
     modal.classList.add('active');
     triggerMathRender(modal);
 }
@@ -624,8 +838,9 @@ function handleModalAnswer(btnElement, selectedIndex) {
     if (selectedIndex === q.correctIndex) {
         // === TRẢ LỜI ĐÚNG ===
         btnElement.classList.add('correct');
+        document.querySelectorAll('.answer-option-card').forEach(b => b.disabled = true);
         playHopSound();
-        showFeedbackToast('✨ +1 BẬC ĐÁ!', 'correct');
+        showFeedbackToast('✨ CHÍNH XÁC! +1 BẬC ĐÁ!', 'correct');
 
         // Team Climbs 1 Step
         const heroEl = document.getElementById(`${currentTurnTeam}-hero`);
@@ -650,14 +865,22 @@ function handleModalAnswer(btnElement, selectedIndex) {
             }, 800);
         }
 
-        setTimeout(() => {
-            closeQuestionModal();
-            renderArena();
-            checkWinCondition();
-
-            // Toggle turn automatically to other team
-            setTurn(currentTurnTeam === 'red' ? 'blue' : 'red');
-        }, 1200);
+        // Hiện nút "XONG - TIẾP TỤC" để cô giáo giải thích cho học sinh trước khi đóng màn
+        const modalBox = document.querySelector('#question-modal .modal-card') || document.getElementById('question-modal');
+        if (modalBox && !document.getElementById('btn-volcano-continue')) {
+            const btn = document.createElement('button');
+            btn.id = 'btn-volcano-continue';
+            btn.style.cssText = "margin: 0.8rem auto 0 auto; padding: 0.45rem 1.2rem; font-size: 1.05rem; background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; border: 2px solid #86efac; border-radius: 10px; font-weight: bold; cursor: pointer; display: block; width: fit-content; box-shadow: 0 3px 10px rgba(34, 197, 94, 0.4); font-family: inherit;";
+            btn.innerHTML = '⏩ XONG - HOÀN THÀNH & TIẾP TỤC ➔';
+            btn.onclick = () => {
+                playHopSound();
+                closeQuestionModal();
+                renderArena();
+                checkWinCondition();
+                setTurn(currentTurnTeam === 'red' ? 'blue' : 'red');
+            };
+            modalBox.appendChild(btn);
+        }
 
     } else {
         // === TRẢ LỜI SAI ===
