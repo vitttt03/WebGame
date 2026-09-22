@@ -421,9 +421,11 @@ function loadSettingsAndQuestions() {
     const rawLists = localStorage.getItem('rescueSavedQuestionLists');
     const rawActiveId = localStorage.getItem('rescueActiveQuestionListId');
     
+    let hasLoadedLists = false;
     if (rawLists) {
         try {
             rescueSavedQuestionLists = JSON.parse(rawLists);
+            if (Object.keys(rescueSavedQuestionLists).length > 0) hasLoadedLists = true;
         } catch (e) {
             rescueSavedQuestionLists = {};
         }
@@ -433,22 +435,24 @@ function loadSettingsAndQuestions() {
         rescueSavedQuestionLists['default'] = {
             id: 'default',
             name: "Bộ Mặc Định (Nhiệm Vụ Giải Cứu)",
-            questions: typeof DEFAULT_QUESTIONS !== 'undefined' ? [...DEFAULT_QUESTIONS] : []
+            questions: typeof DEFAULT_QUESTIONS !== 'undefined' ? JSON.parse(JSON.stringify(DEFAULT_QUESTIONS)) : []
         };
     }
 
-    const legacySaved = localStorage.getItem('rescueGameQuestions_v1');
-    if (legacySaved) {
-        try {
-            const parsedLegacy = JSON.parse(legacySaved);
-            if (Array.isArray(parsedLegacy) && parsedLegacy.length > 0) {
-                if (rawActiveId && rescueSavedQuestionLists[rawActiveId]) {
-                    rescueSavedQuestionLists[rawActiveId].questions = parsedLegacy;
-                } else {
-                    rescueSavedQuestionLists['default'].questions = parsedLegacy;
+    if (!hasLoadedLists) {
+        const legacySaved = localStorage.getItem('rescueGameQuestions_v1');
+        if (legacySaved) {
+            try {
+                const parsedLegacy = JSON.parse(legacySaved);
+                if (Array.isArray(parsedLegacy) && parsedLegacy.length > 0) {
+                    if (rawActiveId && rescueSavedQuestionLists[rawActiveId]) {
+                        rescueSavedQuestionLists[rawActiveId].questions = parsedLegacy;
+                    } else {
+                        rescueSavedQuestionLists['default'].questions = parsedLegacy;
+                    }
                 }
-            }
-        } catch (e) {}
+            } catch (e) {}
+        }
     }
 
     if (rawActiveId && rescueSavedQuestionLists[rawActiveId]) {
@@ -457,11 +461,38 @@ function loadSettingsAndQuestions() {
         rescueActiveListId = 'default';
     }
 
-    questionBank = [...rescueSavedQuestionLists[rescueActiveListId].questions];
+    questionBank = JSON.parse(JSON.stringify(rescueSavedQuestionLists[rescueActiveListId].questions));
+
+    if (savedCount) {
+        activeCharCount = parseInt(savedCount) || 4;
+    } else {
+        activeCharCount = Math.min(8, Math.max(4, questionBank.length));
+    }
+    
+    syncQuestionBankLength();
 
     const selectEl = document.getElementById('setting-char-count');
     if (selectEl) {
         selectEl.value = activeCharCount.toString();
+    }
+}
+
+function syncQuestionBankLength() {
+    if (questionBank.length > activeCharCount) {
+        questionBank = questionBank.slice(0, activeCharCount);
+    } else if (questionBank.length < activeCharCount) {
+        const currentLen = questionBank.length;
+        for (let i = currentLen; i < activeCharCount; i++) {
+            const newId = questionBank.length > 0 ? Math.max(...questionBank.map(q => q.id)) + 1 : 1;
+            questionBank.push({
+                id: newId,
+                title: `Đội giải cứu ${newId}`,
+                type: (newId % 8) === 0 ? 8 : (newId % 8),
+                question: "",
+                options: ["", "", "", ""],
+                correctIndex: 0
+            });
+        }
     }
 }
 
@@ -503,7 +534,14 @@ function renderRescueQuestionSetSelector() {
 function onSelectRescueQuestionSet(listId) {
     if (!rescueSavedQuestionLists[listId]) return;
     rescueActiveListId = listId;
-    questionBank = [...rescueSavedQuestionLists[listId].questions];
+    questionBank = JSON.parse(JSON.stringify(rescueSavedQuestionLists[listId].questions));
+    
+    activeCharCount = Math.min(8, Math.max(4, questionBank.length));
+    const selectEl = document.getElementById('setting-char-count');
+    if (selectEl) selectEl.value = activeCharCount.toString();
+    
+    syncQuestionBankLength();
+    
     saveQuestionsToStorage();
     renderAdminQuestionsList();
     renderRescueQuestionSetSelector();
@@ -535,11 +573,12 @@ function promptCreateNewRescueQuestionSet() {
         };
         rescueActiveListId = newId;
         questionBank = [];
+        syncQuestionBankLength();
         saveQuestionsToStorage();
         renderAdminQuestionsList();
         renderRescueQuestionSetSelector();
         initGameScene();
-        alert(`✨ Đã tạo bộ câu hỏi mới: "${trimmedName}". Hãy thêm câu hỏi vào bộ này!`);
+        alert(`✨ Đã tạo bộ câu hỏi mới: "${trimmedName}". Hãy thêm nội dung cho các câu hỏi!`);
     }
 }
 
@@ -933,6 +972,7 @@ function submitAdminAuth(e) {
 function openAdminModal() {
     renderRescueQuestionSetSelector();
     renderAdminQuestionsList();
+    renderMathToolbar();
     document.getElementById('admin-modal').classList.add('active');
 }
 
@@ -942,8 +982,212 @@ function closeAdminModal() {
 
 function updateCharCountSetting(val) {
     activeCharCount = parseInt(val) || 4;
+    syncQuestionBankLength();
     saveQuestionsToStorage();
+    renderAdminQuestionsList();
     initGameScene();
+}
+
+// --- AUTO-CONVERT CARET (^) TYPING TO UNICODE SUPERSCRIPTS ---
+const SUPERSCRIPT_MAP = {
+    '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+    '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+    '+': '⁺', '-': '⁻', '=': '⁼',
+    'a': 'ᵃ', 'b': 'ᵇ', 'c': 'ᶜ', 'd': 'ᵈ', 'e': 'ᵉ',
+    'f': 'ᶠ', 'g': 'ᵍ', 'h': 'ʰ', 'i': 'ⁱ', 'j': 'ʲ',
+    'k': 'ᵏ', 'l': 'ˡ', 'm': 'ᵐ', 'n': 'ⁿ', 'o': 'ᵒ',
+    'p': 'ᵖ', 'r': 'ʳ', 's': 'ˢ', 't': 'ᵗ', 'u': 'ᵘ',
+    'v': 'ᵛ', 'w': 'ʷ', 'x': 'ˣ', 'y': 'ʸ', 'z': 'ᶻ',
+    'A': 'ᴬ', 'B': 'ᴮ', 'D': 'ᴰ', 'E': 'ᴱ', 'G': 'ᴳ',
+    'H': 'ᴴ', 'I': 'ᴵ', 'J': 'ᴶ', 'K': 'ᴷ', 'L': 'ᴸ',
+    'M': 'ᴹ', 'N': 'ᴺ', 'O': 'ᴼ', 'P': 'ᴾ', 'R': 'ᴿ',
+    'T': 'ᵀ', 'U': 'ᵁ', 'V': 'ⱽ', 'W': 'ᵂ'
+};
+
+function convertCaretToSuperscript(text) {
+    if (!text || !text.includes('^')) return text;
+
+    function toSuper(str) {
+        return str.split('').map(ch => SUPERSCRIPT_MAP[ch] || ch).join('');
+    }
+
+    // 1. Convert ^(...) -> superscripts inside parentheses
+    let converted = text.replace(/\^\(([^)]+)\)/g, (match, inner) => {
+        return toSuper(inner);
+    });
+
+    // 2. Convert ^something -> superscripts for word/number after ^
+    converted = converted.replace(/\^([0-9a-zA-Z+\-]+)/g, (match, inner) => {
+        return toSuper(inner);
+    });
+
+    return converted;
+}
+
+document.addEventListener('input', (e) => {
+    const selectors = '#admin-q-text, #admin-opt-0, #admin-opt-1, #admin-opt-2, #admin-opt-3, #admin-q-title';
+    if (!e.target || !e.target.matches(selectors)) return;
+
+    const input = e.target;
+    const oldVal = input.value;
+    const newVal = convertCaretToSuperscript(oldVal);
+
+    if (oldVal !== newVal) {
+        const start = input.selectionStart;
+        const diff = oldVal.length - newVal.length;
+
+        input.value = newVal;
+
+        // Adjust cursor position smoothly
+        if (start !== null) {
+            const newPos = Math.max(0, start - diff);
+            input.setSelectionRange(newPos, newPos);
+        }
+    }
+});
+
+// --- MATH TOOLBAR & KATEX INTEGRATION ---
+let lastFocusedInput = null;
+let customMathSymbols = JSON.parse(localStorage.getItem('rescueCustomMathSymbols') || '[]');
+
+document.addEventListener('focusin', (e) => {
+    if (e.target && e.target.matches('#admin-q-text, #admin-opt-0, #admin-opt-1, #admin-opt-2, #admin-opt-3, #admin-q-title')) {
+        lastFocusedInput = e.target;
+    }
+});
+
+function triggerMathRender(containerEl) {
+    if (!containerEl) return;
+    try {
+        if (typeof renderMathInElement === 'function') {
+            renderMathInElement(containerEl, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false },
+                    { left: "\\(", right: "\\)", display: false },
+                    { left: "\\[", right: "\\]", display: true }
+                ],
+                throwOnError: false
+            });
+        }
+    } catch (e) {
+        console.warn("KaTeX render error:", e);
+    }
+}
+
+function renderMathToolbar() {
+    const container = document.getElementById('math-symbol-tags-container');
+    if (!container) return;
+
+    // 1. Trọn bộ Số Mũ từ 0 đến 9, n, x, +, -
+    const superscripts = [
+        { display: 'x⁰', val: '⁰', title: 'Mũ 0' },
+        { display: 'x¹', val: '¹', title: 'Mũ 1' },
+        { display: 'x²', val: '²', title: 'Mũ 2' },
+        { display: 'x³', val: '³', title: 'Mũ 3' },
+        { display: 'x⁴', val: '⁴', title: 'Mũ 4' },
+        { display: 'x⁵', val: '⁵', title: 'Mũ 5' },
+        { display: 'x⁶', val: '⁶', title: 'Mũ 6' },
+        { display: 'x⁷', val: '⁷', title: 'Mũ 7' },
+        { display: 'x⁸', val: '⁸', title: 'Mũ 8' },
+        { display: 'x⁹', val: '⁹', title: 'Mũ 9' },
+        { display: 'xⁿ', val: 'ⁿ', title: 'Mũ n' },
+        { display: 'xˣ', val: 'ˣ', title: 'Mũ x' },
+        { display: 'x⁺', val: '⁺', title: 'Mũ cộng' },
+        { display: 'x⁻', val: '⁻', title: 'Mũ trừ' }
+    ];
+
+    // 2. Phép tính & So sánh (kèm dấu chia hết 3 chấm dọc ⋮, gạch đứng |, không chia hết ∤)
+    const basicOps = [
+        '+', '−', '×', '÷', '±', '=', '≠', '≈', '<', '>', '≤', '≥', 
+        '⋮', '|', '∤', '…'
+    ];
+
+    // 3. Căn bậc, phân số, hình học & Hy Lạp
+    const advancedSymbols = [
+        '√', '∛', 'π', '°', '½', '⅓', '¼', '¾', 
+        '△', '∠', '⊥', '∥', 'α', 'β', 'Δ', '∞', 
+        '∈', '∉', '⊂', '∪', '∩'
+    ];
+
+    let html = `
+        <!-- HÀNG 1: TRỌN BỘ SỐ MŨ (0 - 9, n, x, +, -) -->
+        <div class="math-group-row">
+            <span class="math-row-label">🔢 SỐ MŨ:</span>
+            <div class="math-row-buttons">
+                ${superscripts.map(s => `<button type="button" class="math-sym-btn math-super-btn" onclick="insertMathSymbol('${s.val}')" title="${s.title}">${s.display}</button>`).join('')}
+            </div>
+        </div>
+
+        <!-- HÀNG 2: PHÉP TÍNH, CĂN BẬC, HÌNH HỌC & HY LẠP -->
+        <div class="math-group-row">
+            <span class="math-row-label">📐 KÝ HIỆU & PHÉP TÍNH:</span>
+            <div class="math-row-buttons">
+                ${basicOps.map(op => `<button type="button" class="math-sym-btn" onclick="insertMathSymbol('${op}')">${op}</button>`).join('')}
+                ${advancedSymbols.map(sym => `<button type="button" class="math-sym-btn" onclick="insertMathSymbol('${sym}')">${sym}</button>`).join('')}
+            </div>
+        </div>
+
+        <!-- HÀNG 3: KÝ TỰ TÙY CHỈNH -->
+        <div class="math-group-row">
+            <span class="math-row-label">🧪 KÝ TỰ TÙY CHỈNH:</span>
+            <div class="math-row-buttons">
+                ${customMathSymbols.map((sym, cIdx) => {
+                    const safe = sym.replace(/'/g, "\\'");
+                    return `<button type="button" class="math-sym-btn custom-sym" onclick="insertMathSymbol('${safe}')" oncontextmenu="deleteCustomMathSymbol(event, ${cIdx})" title="Ký tự tự thêm (Chuột phải để xóa)">${sym}</button>`;
+                }).join('')}
+                <button type="button" class="math-sym-btn math-add-custom-btn" onclick="promptAddCustomMathSymbol()" title="Bấm để tự thêm ký tự mới">+ Thêm Ký Tự</button>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+function promptAddCustomMathSymbol() {
+    playSound('correct');
+    const sym = prompt("Nhập ký tự hoặc công thức toán học bạn muốn thêm vào bảng:\n(Ví dụ: ∫, ∑, log, ∜, \\vec{u}, ...)");
+    if (sym && sym.trim()) {
+        const trimmed = sym.trim();
+        if (!customMathSymbols.includes(trimmed)) {
+            customMathSymbols.push(trimmed);
+            localStorage.setItem('rescueCustomMathSymbols', JSON.stringify(customMathSymbols));
+            playSound('correct');
+            renderMathToolbar();
+        } else {
+            alert("Ký tự này đã có trên bảng rồi!");
+        }
+    }
+}
+
+function deleteCustomMathSymbol(e, index) {
+    if (e) e.preventDefault();
+    playSound('correct');
+    const sym = customMathSymbols[index];
+    if (confirm(`Bạn có muốn xóa ký tự "${sym}" khỏi bảng không?`)) {
+        customMathSymbols.splice(index, 1);
+        localStorage.setItem('rescueCustomMathSymbols', JSON.stringify(customMathSymbols));
+        renderMathToolbar();
+    }
+}
+
+function insertMathSymbol(symbol) {
+    playSound('correct');
+    if (!lastFocusedInput) {
+        lastFocusedInput = document.getElementById('admin-q-text') || document.getElementById('admin-opt-0');
+    }
+    if (lastFocusedInput) {
+        const start = lastFocusedInput.selectionStart ?? lastFocusedInput.value.length;
+        const end = lastFocusedInput.selectionEnd ?? lastFocusedInput.value.length;
+        const text = lastFocusedInput.value;
+        lastFocusedInput.value = text.substring(0, start) + symbol + text.substring(end);
+        lastFocusedInput.focus();
+        lastFocusedInput.selectionStart = lastFocusedInput.selectionEnd = start + symbol.length;
+    }
+}
+
+function insertMath(texSnippet) {
+    insertMathSymbol(`\\(${texSnippet}\\)`);
 }
 
 function renderAdminQuestionsList() {
@@ -954,22 +1198,30 @@ function renderAdminQuestionsList() {
     if (countEl) countEl.innerText = questionBank.length.toString();
 
     container.innerHTML = '';
+
+    if (questionBank.length === 0) {
+        container.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 1.5rem;">Chưa có câu hỏi nào trong bộ này. Hãy thêm câu hỏi mới bên dưới!</p>';
+        return;
+    }
+
     questionBank.forEach((q, idx) => {
         const item = document.createElement('div');
-        item.className = 'q-item-card';
+        item.className = 'q-item-card question-item';
         item.innerHTML = `
-            <div class="q-item-info">
-                <span class="q-item-tag">câu ${idx + 1} • ${q.title}</span>
-                <span class="q-item-title">${q.question}</span>
-                <span class="q-item-opts">Đáp án đúng: ${['A', 'B', 'C', 'D'][q.correctIndex]} (${q.options[q.correctIndex]})</span>
+            <div class="q-item-info question-item-info">
+                <span class="q-item-tag"><strong>Câu ${idx + 1}</strong> • ${q.title || 'Đội giải cứu'}</span><br>
+                <span class="q-item-title"><strong>Câu hỏi:</strong> ${q.question}</span><br>
+                <span class="q-item-opts" style="color: #a5d6a7;"><strong>Đáp án đúng:</strong> ${['A', 'B', 'C', 'D'][q.correctIndex]} (${q.options[q.correctIndex]})</span>
             </div>
-            <div class="q-item-actions">
-                <button class="btn-q-edit" onclick="editQuestion(${q.id})">✏️ Sửa</button>
-                <button class="btn-q-del" onclick="deleteQuestion(${q.id})">🗑️ Xóa</button>
+            <div class="q-item-actions question-item-actions" style="display: flex; gap: 8px; flex-shrink: 0;">
+                <button class="btn-small btn-edit btn-q-edit" onclick="editQuestion(${q.id})" title="Chỉnh sửa câu hỏi này">✏️ Sửa</button>
+                <button class="btn-small btn-delete btn-q-del" onclick="deleteQuestion(${q.id})" title="Xóa câu hỏi này">🗑️ Xóa</button>
             </div>
         `;
         container.appendChild(item);
     });
+
+    triggerMathRender(container);
 }
 
 function handleQuestionSubmit(e) {
@@ -996,7 +1248,7 @@ function handleQuestionSubmit(e) {
             target.correctIndex = correctIndex;
         }
     } else {
-        // Add new
+        // Add new (nhưng nếu đã đạt activeCharCount thì sẽ tăng activeCharCount)
         const newId = questionBank.length > 0 ? Math.max(...questionBank.map(i => i.id)) + 1 : 1;
         questionBank.push({
             id: newId,
@@ -1006,69 +1258,96 @@ function handleQuestionSubmit(e) {
             options: [opt0, opt1, opt2, opt3],
             correctIndex
         });
+        activeCharCount = Math.min(8, questionBank.length);
+        const selectEl = document.getElementById('setting-char-count');
+        if (selectEl) selectEl.value = activeCharCount.toString();
     }
 
+    syncQuestionBankLength();
     saveQuestionsToStorage();
     cancelEditForm();
     renderAdminQuestionsList();
     initGameScene();
+    playSound('correct');
 }
 
 function editQuestion(id) {
+    playSound('correct');
     const q = questionBank.find(item => item.id === id);
     if (!q) return;
 
     document.getElementById('edit-q-id').value = q.id;
-    document.getElementById('admin-q-title').value = q.title;
-    document.getElementById('admin-q-type').value = q.type;
-    document.getElementById('admin-q-text').value = q.question;
+    document.getElementById('admin-q-title').value = q.title || '';
+    document.getElementById('admin-q-type').value = q.type || 1;
+    document.getElementById('admin-q-text').value = q.question || '';
     document.getElementById('admin-opt-0').value = q.options[0] || '';
     document.getElementById('admin-opt-1').value = q.options[1] || '';
     document.getElementById('admin-opt-2').value = q.options[2] || '';
     document.getElementById('admin-opt-3').value = q.options[3] || '';
-    document.getElementById('admin-correct-opt').value = q.correctIndex;
+    document.getElementById('admin-correct-opt').value = q.correctIndex !== undefined ? q.correctIndex : 0;
 
-    document.getElementById('form-title').innerText = `✏️ Chỉnh Sửa Câu Hỏi #${q.id}`;
-    document.getElementById('btn-cancel-edit').style.display = 'inline-block';
+    const formTitle = document.getElementById('form-title');
+    const submitBtn = document.getElementById('form-submit-btn');
+    const cancelBtn = document.getElementById('btn-cancel-edit');
+    const formEl = document.getElementById('admin-question-form');
+
+    if (formTitle) formTitle.innerText = `✏️ Chỉnh Sửa Câu Hỏi #${q.id}`;
+    if (submitBtn) submitBtn.innerText = `💾 CẬP NHẬT CÂU HỎI`;
+    if (cancelBtn) cancelBtn.style.display = 'inline-block';
+    if (formEl) {
+        formEl.classList.add('editing-mode');
+        formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    const qInput = document.getElementById('admin-q-text');
+    if (qInput) qInput.focus();
 }
 
 function cancelEditForm() {
+    playSound('correct');
     document.getElementById('edit-q-id').value = '';
-    document.getElementById('admin-q-form').reset();
-    document.getElementById('form-title').innerText = '➕ Thêm Câu Hỏi Mới';
-    document.getElementById('btn-cancel-edit').style.display = 'none';
+    const formEl = document.getElementById('admin-q-form');
+    if (formEl) formEl.reset();
+
+    const parentFormBox = document.getElementById('admin-question-form');
+    if (parentFormBox) parentFormBox.classList.remove('editing-mode');
+
+    const formTitle = document.getElementById('form-title');
+    const submitBtn = document.getElementById('form-submit-btn');
+    const cancelBtn = document.getElementById('btn-cancel-edit');
+
+    if (formTitle) formTitle.innerText = '➕ Thêm Câu Hỏi Mới';
+    if (submitBtn) submitBtn.innerText = '💾 LƯU CÂU HỎI VÀO GAME';
+    if (cancelBtn) cancelBtn.style.display = 'none';
 }
 
 function deleteQuestion(id) {
+    playSound('correct');
+    if (questionBank.length <= 4) {
+        alert("⚠️ Trò chơi cần tối thiểu 4 câu hỏi/nhân vật!");
+        return;
+    }
     if (confirm('Bạn có chắc chắn muốn xóa câu hỏi này khỏi hệ thống?')) {
         questionBank = questionBank.filter(item => item.id !== id);
+        activeCharCount = questionBank.length;
+        const selectEl = document.getElementById('setting-char-count');
+        if (selectEl) selectEl.value = activeCharCount.toString();
+        
         saveQuestionsToStorage();
         renderAdminQuestionsList();
         initGameScene();
     }
 }
 
-// --- MATH TOOLBAR HELPER ---
-function insertMath(texSnippet) {
-    const textarea = document.getElementById('admin-q-text');
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-
-    const formatted = `\\(${texSnippet}\\)`;
-    textarea.value = text.substring(0, start) + formatted + text.substring(end);
-    textarea.selectionStart = textarea.selectionEnd = start + formatted.length;
-    textarea.focus();
-}
-
 // --- EXPORT & IMPORT JSON ---
 function exportQuestionsJSON() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(questionBank, null, 2));
+    playSound('correct');
+    const currentSet = rescueSavedQuestionLists[rescueActiveListId] || { name: "Bo_Cau_Hoi_Giai_Cuu", questions: questionBank };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentSet, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `NhiemVuGiaiCuu_CauHoi_${new Date().toISOString().slice(0,10)}.json`);
+    const safeFileName = (currentSet.name || "bo_cau_hoi_giai_cuu").replace(/[^a-zA-Z0-9_\-\u00C0-\u024F]/g, "_") + ".json";
+    downloadAnchor.setAttribute("download", safeFileName);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -1082,25 +1361,56 @@ function importQuestionsJSON(event) {
     reader.onload = (e) => {
         try {
             const parsed = JSON.parse(e.target.result);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                questionBank = parsed;
-                saveQuestionsToStorage();
-                renderAdminQuestionsList();
-                initGameScene();
-                alert('✅ Đã nhập thành công ngân hàng câu hỏi mới!');
+            let importedQuestions = [];
+            let importedName = "Bộ Import " + new Date().toLocaleDateString('vi-VN');
+
+            if (Array.isArray(parsed)) {
+                importedQuestions = parsed;
+            } else if (parsed && Array.isArray(parsed.questions)) {
+                importedQuestions = parsed.questions;
+                if (parsed.name) importedName = parsed.name;
             } else {
-                alert('⚠️ File JSON không hợp lệ hoặc rỗng!');
+                alert('⚠️ Định dạng tệp JSON không hợp lệ!');
+                return;
             }
+
+            const newId = 'set_imported_' + Date.now();
+            rescueSavedQuestionLists[newId] = {
+                id: newId,
+                name: importedName,
+                questions: importedQuestions
+            };
+            rescueActiveListId = newId;
+            questionBank = [...importedQuestions];
+            
+            activeCharCount = Math.min(8, Math.max(4, questionBank.length));
+            const selectEl = document.getElementById('setting-char-count');
+            if (selectEl) selectEl.value = activeCharCount.toString();
+            syncQuestionBankLength();
+            
+            saveQuestionsToStorage();
+            cancelEditForm();
+            renderAdminQuestionsList();
+            renderRescueQuestionSetSelector();
+            initGameScene();
+            playSound('correct');
+            alert(`📥 Đã nhập thành công bộ câu hỏi: "${importedName}" (${questionBank.length} câu)!`);
         } catch (err) {
             alert('⚠️ Lỗi đọc file JSON: ' + err.message);
         }
+        event.target.value = '';
     };
     reader.readAsText(file);
 }
 
 function resetDefaultQuestions() {
+    playSound('correct');
     if (confirm('Khôi phục ngân hàng câu hỏi về mặc định ban đầu?')) {
-        questionBank = [...DEFAULT_QUESTIONS];
+        questionBank = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+        activeCharCount = 8;
+        const selectEl = document.getElementById('setting-char-count');
+        if (selectEl) selectEl.value = '8';
+        syncQuestionBankLength();
         saveQuestionsToStorage();
         renderAdminQuestionsList();
         initGameScene();

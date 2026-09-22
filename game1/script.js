@@ -548,7 +548,7 @@ function renderApp() {
                         <input type="text" id="admin-mission" placeholder="VD: Đợt 06: Zombie Vũ Trụ xuất hiện" required>
                     </div>
                     <div class="form-group">
-                        <label>Nội dung câu hỏi</label>
+                        <label>Nội dung câu hỏi <span style="font-size: 0.82rem; color: #38bdf8; font-weight: normal;">(Tự động đổi mũ: <code>2^10</code> → <code>2¹⁰</code>, <code>m^x</code> → <code>mˣ</code>, <code>x^(n+1)</code> → <code>xⁿ⁺¹</code>)</span></label>
                         <input type="text" id="admin-question" placeholder="VD: 15 + 25 = ? hoặc x² + 2x = 0" required>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -1834,3 +1834,58 @@ function processTransparentSprites() {
 renderApp();
 renderBattlefieldActors();
 processTransparentSprites();
+
+// --- AUTO-CONVERT CARET (^) TYPING TO UNICODE SUPERSCRIPTS ---
+const SUPERSCRIPT_MAP = {
+    '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+    '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+    '+': '⁺', '-': '⁻', '=': '⁼',
+    'a': 'ᵃ', 'b': 'ᵇ', 'c': 'ᶜ', 'd': 'ᵈ', 'e': 'ᵉ',
+    'f': 'ᶠ', 'g': 'ᵍ', 'h': 'ʰ', 'i': 'ⁱ', 'j': 'ʲ',
+    'k': 'ᵏ', 'l': 'ˡ', 'm': 'ᵐ', 'n': 'ⁿ', 'o': 'ᵒ',
+    'p': 'ᵖ', 'r': 'ʳ', 's': 'ˢ', 't': 'ᵗ', 'u': 'ᵘ',
+    'v': 'ᵛ', 'w': 'ʷ', 'x': 'ˣ', 'y': 'ʸ', 'z': 'ᶻ',
+    'A': 'ᴬ', 'B': 'ᴮ', 'D': 'ᴰ', 'E': 'ᴱ', 'G': 'ᴳ',
+    'H': 'ᴴ', 'I': 'ᴵ', 'J': 'ᴶ', 'K': 'ᴷ', 'L': 'ᴸ',
+    'M': 'ᴹ', 'N': 'ᴺ', 'O': 'ᴼ', 'P': 'ᴾ', 'R': 'ᴿ',
+    'T': 'ᵀ', 'U': 'ᵁ', 'V': 'ⱽ', 'W': 'ᵂ'
+};
+
+function convertCaretToSuperscript(text) {
+    if (!text || !text.includes('^')) return text;
+
+    function toSuper(str) {
+        return str.split('').map(ch => SUPERSCRIPT_MAP[ch] || ch).join('');
+    }
+
+    let converted = text.replace(/\^\(([^)]+)\)/g, (match, inner) => {
+        return toSuper(inner);
+    });
+
+    converted = converted.replace(/\^([0-9a-zA-Z+\-]+)/g, (match, inner) => {
+        return toSuper(inner);
+    });
+
+    return converted;
+}
+
+document.addEventListener('input', (e) => {
+    const selectors = '#admin-question, #admin-opt-0, #admin-opt-1, #admin-opt-2, #admin-opt-3, #admin-mission';
+    if (!e.target || !e.target.matches(selectors)) return;
+
+    const input = e.target;
+    const oldVal = input.value;
+    const newVal = convertCaretToSuperscript(oldVal);
+
+    if (oldVal !== newVal) {
+        const start = input.selectionStart;
+        const diff = oldVal.length - newVal.length;
+
+        input.value = newVal;
+
+        if (start !== null) {
+            const newPos = Math.max(0, start - diff);
+            input.setSelectionRange(newPos, newPos);
+        }
+    }
+});
